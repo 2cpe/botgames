@@ -148,62 +148,8 @@
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-
-    <!-- Initialize Firebase first -->
-    <script src="./js/firebase-config.js"></script>
-    <script src="./js/auth-roles.js"></script>
-    <script>
-        // Ensure Firebase is initialized before continuing
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-    </script>
-
-    <!-- Environment and configuration -->
-    <script src="./js/env-config.js"></script>
-
-    <!-- Core handlers -->
-    <script src="./js/db-handler.js"></script>
-    <script>
-        // Ensure database handler is initialized
-        if (!window.dbHandler) {
-            window.dbHandler = new DatabaseHandler();
-        }
-    </script>
-
-    <script src="./js/api-handler.js"></script>
-    <script>
-        // Ensure API handler is initialized
-        if (!window.apiHandler) {
-            window.apiHandler = new APIHandler();
-        }
-    </script>
-
-    <!-- Data layer -->
     <script src="./js/products-data.js"></script>
-
-    <!-- Authentication -->
     <script src="./js/admin-auth.js"></script>
-
-    <!-- Main application -->
-    <script>
-        // Wait for everything to be ready
-        window.addEventListener('load', () => {
-            if (window.dbHandler && window.apiHandler) {
-                window.adminDashboard = new AdminDashboard();
-            } else {
-                console.error('Required handlers not initialized');
-            }
-        });
-    </script>
     <script src="./js/admin.js"></script>
-
-    <!-- Add after firebase-config.js -->
-    <script src="./js/db-config.js"></script>
 </body>
 </html> 

@@ -1,17 +1,12 @@
 class AdminDashboard {
     constructor() {
-        if (!window.dbHandler) {
-            throw new Error('Database handler not initialized');
+        // Initialize products array if it doesn't exist
+        if (typeof products === 'undefined') {
+            window.products = [];
         }
-        if (!window.apiHandler) {
-            throw new Error('API handler not initialized');
-        }
-
+        
         this.initializeEventListeners();
-        this.loadProducts().catch(error => {
-            console.error('Failed to load products:', error);
-            this.handleError(error);
-        });
+        this.loadProducts();
     }
 
     initializeEventListeners() {
@@ -53,11 +48,9 @@ class AdminDashboard {
         });
     }
 
-    async loadProducts() {
+    loadProducts() {
         try {
             const productsGrid = document.querySelector('.products-grid');
-            const products = await apiHandler.fetchProducts();
-            
             if (!products || !products.length) {
                 productsGrid.innerHTML = `
                     <div class="no-products">
@@ -134,59 +127,56 @@ class AdminDashboard {
         document.getElementById('product-modal').style.display = 'none';
     }
 
-    async saveProduct() {
-        try {
-            const form = document.getElementById('product-form');
-            const productData = {
-                name: form.elements.name.value,
-                shortDescription: form.elements.shortDescription.value,
-                fullDescription: form.elements.fullDescription.value,
-                price: parseFloat(form.elements.price.value),
-                badge: form.elements.badge.value || null,
-                category: form.elements.category.value,
-                features: form.elements.features.value.split('\n').filter(f => f.trim()),
-                images: form.elements.images.value.split('\n').filter(i => i.trim())
-            };
+    saveProduct() {
+        const form = document.getElementById('product-form');
+        const productData = {
+            name: form.elements.name.value,
+            shortDescription: form.elements.shortDescription.value,
+            fullDescription: form.elements.fullDescription.value,
+            price: parseFloat(form.elements.price.value),
+            badge: form.elements.badge.value || null,
+            category: form.elements.category.value,
+            features: form.elements.features.value.split('\n').filter(f => f.trim()),
+            images: form.elements.images.value.split('\n').filter(i => i.trim())
+        };
 
-            if (form.dataset.productId) {
-                await this.updateProduct(form.dataset.productId, productData);
-            } else {
-                await this.addProduct(productData);
-            }
-
-            this.closeProductModal();
-            this.loadProducts();
-        } catch (error) {
-            this.handleError(error, 'Failed to save product');
+        if (form.dataset.productId) {
+            // Update existing product
+            productData.id = parseInt(form.dataset.productId);
+            this.updateProduct(productData);
+        } else {
+            // Add new product
+            productData.id = Math.max(...products.map(p => p.id)) + 1;
+            this.addProduct(productData);
         }
+
+        this.closeProductModal();
+        this.loadProducts();
     }
 
-    async addProduct(productData) {
-        try {
-            await apiHandler.addProduct(productData);
-            this.showNotification('Product added successfully!', 'success');
-        } catch (error) {
-            this.handleError(error, 'Failed to add product');
-        }
+    addProduct(productData) {
+        products.push(productData);
+        saveProducts(); // Save to localStorage
+        this.showNotification('Product added successfully!', 'success');
     }
 
-    async updateProduct(productId, productData) {
-        try {
-            await apiHandler.updateProduct(productId, productData);
+    updateProduct(productData) {
+        const index = products.findIndex(p => p.id === productData.id);
+        if (index !== -1) {
+            products[index] = productData;
+            saveProducts(); // Save to localStorage
             this.showNotification('Product updated successfully!', 'success');
-        } catch (error) {
-            this.handleError(error, 'Failed to update product');
         }
     }
 
-    async deleteProduct(productId) {
+    deleteProduct(productId) {
         if (confirm('Are you sure you want to delete this product?')) {
-            try {
-                await apiHandler.deleteProduct(productId);
+            const index = products.findIndex(p => p.id === productId);
+            if (index !== -1) {
+                products.splice(index, 1);
+                saveProducts(); // Save to localStorage
                 this.loadProducts();
                 this.showNotification('Product deleted successfully!', 'success');
-            } catch (error) {
-                this.handleError(error, 'Failed to delete product');
             }
         }
     }
@@ -198,19 +188,13 @@ class AdminDashboard {
         }
     }
 
-    async quickUpdatePrice(productId, newPrice) {
-        try {
-            const product = await dbHandler.getProduct(productId);
-            if (product) {
-                await dbHandler.updateProduct(productId, {
-                    ...product,
-                    price: parseFloat(newPrice)
-                });
-                this.loadProducts();
-                this.showNotification('Price updated successfully!', 'success');
-            }
-        } catch (error) {
-            this.handleError(error, 'Failed to update price');
+    quickUpdatePrice(productId, newPrice) {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.price = parseFloat(newPrice);
+            saveProducts(); // Save to localStorage
+            this.loadProducts();
+            this.showNotification('Price updated successfully!', 'success');
         }
     }
 
@@ -235,21 +219,5 @@ class AdminDashboard {
     }
 }
 
-// Initialize dashboard when everything is ready
-function initDashboard() {
-    if (window.dbHandler && window.apiHandler) {
-        try {
-            window.adminDashboard = new AdminDashboard();
-        } catch (error) {
-            console.error('Failed to initialize dashboard:', error);
-            // Retry after a short delay
-            setTimeout(initDashboard, 1000);
-        }
-    } else {
-        // Wait for handlers to be ready
-        setTimeout(initDashboard, 100);
-    }
-}
-
-// Start initialization after DOM is loaded
-document.addEventListener('DOMContentLoaded', initDashboard); 
+// Initialize the dashboard
+const adminDashboard = new AdminDashboard(); 

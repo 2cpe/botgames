@@ -1,9 +1,9 @@
 class AdminAuth {
     constructor() {
-        this.DISCORD_CLIENT_ID = ENV.DISCORD.CLIENT_ID;
-        this.DISCORD_REDIRECT_URI = ENV.DISCORD.REDIRECT_URI;
-        this.REQUIRED_ROLE_ID = ENV.DISCORD.REQUIRED_ROLE_ID;
-        this.GUILD_ID = ENV.DISCORD.GUILD_ID;
+        this.DISCORD_CLIENT_ID = '1327745611230871572'; // Replace with your Discord Client ID
+        this.DISCORD_REDIRECT_URI = 'https://2cpe.github.io/botgames/admin.html';
+        this.REQUIRED_ROLE_ID = '1327749769770307686'; // Replace with your admin role ID
+        this.GUILD_ID = '1327749495567552592'; // Replace with your Discord server ID
         
         // Add debug logging
         console.log('AdminAuth initialized');
@@ -123,25 +123,17 @@ class AdminAuth {
         }
     }
 
-    async showDashboard(user) {
-        try {
-            // Set user role if they have the required Discord role
-            await authRoles.setUserRole(user.id, 'admin');
+    showDashboard(user) {
+        console.log('Showing dashboard for user:', user.username);
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'block';
+        
+        const avatarUrl = user.avatar ? 
+            `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` :
+            'https://cdn.discordapp.com/embed/avatars/0.png';
             
-            console.log('Showing dashboard for user:', user.username);
-            document.getElementById('loading-screen').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            
-            const avatarUrl = user.avatar ? 
-                `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` :
-                'https://cdn.discordapp.com/embed/avatars/0.png';
-                
-            document.getElementById('user-avatar').src = avatarUrl;
-            document.getElementById('user-name').textContent = user.username;
-        } catch (error) {
-            console.error('Error setting up user:', error);
-            this.showAccessDenied();
-        }
+        document.getElementById('user-avatar').src = avatarUrl;
+        document.getElementById('user-name').textContent = user.username;
     }
 
     showAccessDenied() {
