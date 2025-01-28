@@ -28,7 +28,7 @@ exports.handler = async function(event, context) {
   try {
     console.log('Attempting to fetch products with Tebex key:', process.env.TEBEX_SECRET.substring(0, 4) + '...');
     
-    const response = await fetch('https://plugin.tebex.io/listings', {
+    const response = await fetch(`https://plugin.tebex.io/store/${process.env.TEBEX_STORE_ID}/listings`, {
       headers: {
         'X-Tebex-Secret': process.env.TEBEX_SECRET
       }

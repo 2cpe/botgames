@@ -43,10 +43,22 @@ exports.handler = async function(event, context) {
     
     const data = await response.json();
     
+    // Add additional package details
+    const packageDetails = {
+      ...data,
+      features: [
+        'Real-time statistics',
+        'Customizable UI',
+        'Easy installation',
+        'Regular updates',
+        '24/7 support'
+      ]
+    };
+    
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(packageDetails)
     };
   } catch (error) {
     return {

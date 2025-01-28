@@ -30,12 +30,12 @@ function createProductCard(product) {
     return `
         <div class="product-card" onclick="window.location.href='product.html?id=${product.id}'">
             <div class="product-image">
-                <img src="${product.image || './assets/images/default-product.jpg'}" alt="${product.name}">
-                ${product.featured ? '<div class="product-badge">Featured</div>' : ''}
+                <img src="${product.image}" alt="${product.name}">
+                <div class="product-badge">New</div>
             </div>
             <div class="product-content">
                 <h3>${product.name}</h3>
-                <p>${product.short_description || product.description}</p>
+                <p>${product.short_description}</p>
                 <div class="product-features">
                     ${product.features ? product.features.map(feature => 
                         `<span><i class="fas fa-check"></i> ${feature}</span>`
