@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 class APIHandler {
     constructor() {
         this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
