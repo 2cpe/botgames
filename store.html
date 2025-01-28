@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store - FiveM Scripts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/store.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="highlight">TEST</span>ING
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="store.html" class="nav-link active">
+                <i class="fas fa-store"></i>
+                <span>Store</span>
+            </a>
+            <a href="index.html#about" class="nav-link">
+                <i class="fas fa-user"></i>
+                <span>About</span>
+            </a>
+        </div>
+        <button class="mobile-menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- Store Header -->
+    <section class="store-header">
+        <div class="store-header-content">
+            <span class="store-tag">Our Products</span>
+            <h1>Premium FiveM Scripts</h1>
+            <p>Enhance your roleplay server with our high-quality scripts</p>
+        </div>
+    </section>
+
+    <!-- Store Grid -->
+    <section class="store-grid">
+        <!-- Product Card -->
+        <div class="product-card" onclick="window.location.href='product.html'">
+            <div class="product-image">
+                <img src="assets/images/product1.jpg" alt="UI Dashboard">
+                <div class="product-badge">Featured</div>
+            </div>
+            <div class="product-content">
+                <h3>Modern UI Dashboard</h3>
+                <p>A sleek and intuitive dashboard interface with real-time statistics.</p>
+                <div class="product-features">
+                    <span><i class="fas fa-check"></i> Customizable</span>
+                    <span><i class="fas fa-check"></i> Real-time Updates</span>
+                    <span><i class="fas fa-check"></i> Easy Installation</span>
+                </div>
+                <div class="product-price">
+                    <span class="price">$24.99</span>
+                    <a href="product.html" class="buy-btn">View Details</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add more product cards as needed -->
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="#" class="discord-link"><i class="fab fa-discord"></i></a>
+        </div>
+        <p>&copy; 2024 Team FiveM. All rights reserved.</p>
+    </footer>
+
+    <script src="./js/main.js"></script>
+    <script src="./js/products-data.js"></script>
+    <script src="./js/product-renderer.js"></script>
+    <script src="./js/store.js"></script>
+</body>
+</html> 
