@@ -1,5 +1,5 @@
-// Define the products array globally
-window.products = [
+// Initialize products from localStorage or use default products
+window.products = JSON.parse(localStorage.getItem('products')) || [
     {
         id: 1,
         name: "Modern UI Dashboard",
@@ -56,5 +56,10 @@ window.products = [
             filesIncluded: "HTML, CSS, LUA, Config"
         }
     }
-    // Add more products as needed
-]; 
+    // Add more default products as needed
+];
+
+// Function to save products to localStorage
+function saveProducts() {
+    localStorage.setItem('products', JSON.stringify(products));
+} 
