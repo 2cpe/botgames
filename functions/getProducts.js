@@ -36,10 +36,9 @@ exports.handler = async function(event, context) {
 
   try {
     console.log('Attempting to fetch server information...');
-    const response = await fetch('https://plugin.tebex.io/store', {
+    const response = await fetch('https://plugin.tebex.io/listings', {
       headers: {
-        'X-Tebex-Secret': process.env.TEBEX_SECRET,
-        'Content-Type': 'application/json'
+        'X-Tebex-Secret': process.env.TEBEX_SECRET
       }
     });
 
@@ -55,29 +54,27 @@ exports.handler = async function(event, context) {
     const data = await response.json();
     console.log('API Response:', data);
 
-    // Create dummy data for testing
-    const dummyPackages = [
-      {
-        id: 1,
-        name: "Modern UI Dashboard",
-        price: 24.99,
-        image: "./assets/images/default-product.jpg",
-        short_description: "A sleek and intuitive dashboard interface",
-        description: "A modern dashboard interface for your FiveM server",
-        features: [
-          'Real-time statistics',
-          'Customizable UI',
-          'Easy installation',
-          'Regular updates',
-          '24/7 support'
-        ]
-      }
-    ];
+    // Format the actual Tebex data
+    const formattedPackages = Array.isArray(data) ? data.map(pkg => ({
+      id: pkg.id,
+      name: pkg.name,
+      price: pkg.price,
+      image: pkg.image || './assets/images/default-product.jpg',
+      short_description: pkg.short_description || pkg.description,
+      description: pkg.description,
+      features: [
+        'Real-time statistics',
+        'Customizable UI',
+        'Easy installation',
+        'Regular updates',
+        '24/7 support'
+      ]
+    })) : [];
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(dummyPackages)
+      body: JSON.stringify(formattedPackages)
     };
   } catch (error) {
     console.error('Function error:', {
