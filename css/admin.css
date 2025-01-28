@@ -13,12 +13,17 @@
 
 /* Loading Screen */
 #loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--darker-bg);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    background: var(--darker-bg);
+    z-index: 9999;
 }
 
 .loader {
@@ -28,6 +33,7 @@
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -492,10 +498,11 @@
 }
 
 .auth-error {
-    color: var(--admin-danger);
-    margin-top: 1rem;
-    padding: 1rem;
     background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    padding: 1rem;
     border-radius: 8px;
+    margin-top: 1rem;
     font-size: 0.9rem;
+    text-align: center;
 } 

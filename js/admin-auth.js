@@ -7,11 +7,20 @@ class AdminAuth {
         
         // Add debug logging
         console.log('AdminAuth initialized');
+        
+        // Add logout handler
+        document.getElementById('logout-btn')?.addEventListener('click', () => this.logout());
+        
         this.init();
     }
 
     init() {
         console.log('Starting auth initialization');
+        
+        // Show loading screen
+        document.getElementById('loading-screen').style.display = 'flex';
+        document.getElementById('admin-dashboard').style.display = 'none';
+        document.getElementById('access-denied').style.display = 'none';
         
         // Check if we're returning from Discord OAuth
         const fragment = new URLSearchParams(window.location.hash.slice(1));
@@ -35,6 +44,12 @@ class AdminAuth {
                 this.redirectToDiscord();
             }
         }
+    }
+
+    logout() {
+        console.log('Logging out...');
+        localStorage.removeItem('discord_token');
+        window.location.href = 'index.html';
     }
 
     redirectToDiscord() {
@@ -70,12 +85,12 @@ class AdminAuth {
             } else {
                 console.log('Access denied: User does not have required role');
                 localStorage.removeItem('discord_token');
-                this.showAccessDenied();
+                this.showAccessDenied('You do not have the required role to access this area.');
             }
         } catch (error) {
             console.error('Auth error:', error);
             localStorage.removeItem('discord_token');
-            this.showAccessDenied();
+            this.showAccessDenied('Authentication failed. Please try again.');
         }
     }
 
@@ -88,8 +103,6 @@ class AdminAuth {
             });
             
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('User info error:', errorData);
                 throw new Error(`Failed to fetch user info: ${response.status}`);
             }
             
@@ -109,8 +122,6 @@ class AdminAuth {
             });
             
             if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Role check error:', errorData);
                 throw new Error(`Failed to check user role: ${response.status}`);
             }
             
@@ -126,6 +137,7 @@ class AdminAuth {
     showDashboard(user) {
         console.log('Showing dashboard for user:', user.username);
         document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('access-denied').style.display = 'none';
         document.getElementById('admin-dashboard').style.display = 'block';
         
         const avatarUrl = user.avatar ? 
@@ -136,13 +148,12 @@ class AdminAuth {
         document.getElementById('user-name').textContent = user.username;
     }
 
-    showAccessDenied() {
+    showAccessDenied(message = 'You do not have permission to access this area.') {
         console.log('Showing access denied screen');
         document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('admin-dashboard').style.display = 'none';
         document.getElementById('access-denied').style.display = 'flex';
-    }
-
-    showError(message) {
+        
         const errorDiv = document.createElement('div');
         errorDiv.className = 'auth-error';
         errorDiv.textContent = message;

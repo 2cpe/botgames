@@ -46,6 +46,7 @@ class AdminDashboard {
 
     async loadProducts() {
         try {
+            console.log('Loading products...');
             const products = await this.api.fetchProducts();
             window.products = products; // Update global products
             
@@ -61,7 +62,9 @@ class AdminDashboard {
             }
             
             productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
+            console.log('Products loaded:', products.length);
         } catch (error) {
+            console.error('Failed to load products:', error);
             this.handleError(error, 'Failed to load products');
         }
     }
@@ -234,5 +237,7 @@ class AdminDashboard {
     }
 }
 
-// Initialize the dashboard
-const adminDashboard = new AdminDashboard(); 
+// Wait for DOM to be ready before initializing
+document.addEventListener('DOMContentLoaded', () => {
+    window.adminDashboard = new AdminDashboard();
+}); 
