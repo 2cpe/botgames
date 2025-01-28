@@ -6,15 +6,9 @@ class APIHandler {
     }
 
     async initialize() {
-        try {
-            this.token = await EnvLoader.loadToken();
-            if (!this.token) {
-                throw new Error('Failed to load GitHub token');
-            }
-            console.log('API Handler initialized successfully');
-        } catch (error) {
-            console.error('Failed to initialize API Handler:', error);
-            throw error;
+        this.token = await EnvLoader.loadToken();
+        if (!this.token) {
+            throw new Error('Failed to load GitHub token');
         }
     }
 
