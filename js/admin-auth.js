@@ -1,8 +1,9 @@
 class AdminAuth {
     constructor() {
-        this.DISCORD_CLIENT_ID = 'YOUR_DISCORD_CLIENT_ID';
-        this.DISCORD_REDIRECT_URI = 'http://your-domain.com/admin.html';
-        this.REQUIRED_ROLE_ID = 'YOUR_ADMIN_ROLE_ID';
+        this.DISCORD_CLIENT_ID = '1327745611230871572'; // Replace with your Discord Client ID
+        this.DISCORD_REDIRECT_URI = 'https://2cpe.github.io/botgames/admin.html';
+        this.REQUIRED_ROLE_ID = '1327749769770307686'; // Replace with your admin role ID
+        this.GUILD_ID = '1327749495567552592'; // Replace with your Discord server ID
         
         this.init();
     }
@@ -63,7 +64,7 @@ class AdminAuth {
     }
 
     async checkUserRole(token) {
-        const response = await fetch(`https://discord.com/api/users/@me/guilds/YOUR_GUILD_ID/member`, {
+        const response = await fetch(`https://discord.com/api/users/@me/guilds/${this.GUILD_ID}/member`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         const member = await response.json();
@@ -84,4 +85,7 @@ class AdminAuth {
         document.getElementById('loading-screen').style.display = 'none';
         document.getElementById('access-denied').style.display = 'flex';
     }
-} 
+}
+
+// Initialize authentication
+new AdminAuth(); 
