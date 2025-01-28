@@ -1,27 +1,13 @@
-require('dotenv').config();
-
 class APIHandler {
     constructor() {
         this.baseUrl = API_CONFIG.baseUrl;
         this.branch = API_CONFIG.branch;
-        // This is a placeholder that will be replaced during build
-        // Using ### instead of other characters to avoid GitHub's secret detection
-        this.token = '###API_TOKEN###';
+        this.token = API_CONFIG.token;
     }
 
     async fetchProducts() {
         try {
-            const response = await fetch(`${this.baseUrl}/db/products.json`, {
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
+            const response = await fetch(`${this.baseUrl}/db/products.json`);
             const data = await response.json();
             const content = atob(data.content);
             return JSON.parse(content).products;
@@ -34,17 +20,7 @@ class APIHandler {
     async updateProducts(products) {
         try {
             // Get the current file to get its SHA
-            const currentFile = await fetch(`${this.baseUrl}/db/products.json`, {
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-            
-            if (!currentFile.ok) {
-                throw new Error(`HTTP error! status: ${currentFile.status}`);
-            }
-            
+            const currentFile = await fetch(`${this.baseUrl}/db/products.json`);
             const fileData = await currentFile.json();
 
             // Prepare new content
@@ -61,7 +37,6 @@ class APIHandler {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -73,8 +48,7 @@ class APIHandler {
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(`Failed to update products: ${error.message}`);
+                throw new Error('Failed to update products');
             }
 
             return true;
