@@ -2,11 +2,21 @@ class APIHandler {
     constructor() {
         this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
         this.branch = 'main';
-        // Token will be loaded from environment variables during deployment
-        this.token = process.env.GITHUB_TOKEN;
+        this.token = null;
+    }
+
+    async initialize() {
+        const env = await EnvLoader.loadEnv();
+        this.token = env.GITHUB_TOKEN;
+        if (!this.token) {
+            throw new Error('GitHub token not found');
+        }
     }
 
     async fetchProducts() {
+        if (!this.token) {
+            await this.initialize();
+        }
         try {
             const response = await fetch(`${this.baseUrl}/db/products.json`, {
                 headers: {
@@ -29,6 +39,9 @@ class APIHandler {
     }
 
     async updateProducts(products) {
+        if (!this.token) {
+            await this.initialize();
+        }
         try {
             // First, get the current file and its SHA
             const currentFileResponse = await fetch(`${this.baseUrl}/db/products.json`, {
