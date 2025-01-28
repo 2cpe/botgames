@@ -1,11 +1,9 @@
 class AdminDashboard {
-    constructor() {
-        if (!window.APIHandler) {
-            throw new Error('APIHandler not loaded');
-        }
+    async initialize() {
         this.api = new APIHandler();
+        await this.api.initialize();
         this.initializeEventListeners();
-        this.loadProducts();
+        await this.loadProducts();
     }
 
     initializeEventListeners() {
@@ -240,7 +238,14 @@ class AdminDashboard {
     }
 }
 
-// Initialize dashboard only after authentication is complete
-window.initAdminDashboard = () => {
-    window.adminDashboard = new AdminDashboard();
-}; 
+// Initialize when everything is ready
+async function initDashboard() {
+    try {
+        window.adminDashboard = new AdminDashboard();
+        await window.adminDashboard.initialize();
+    } catch (error) {
+        console.error('Failed to initialize dashboard:', error);
+    }
+}
+
+window.addEventListener('load', initDashboard); 
