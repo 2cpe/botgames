@@ -1,17 +1,17 @@
 class AdminDashboard {
     constructor() {
-        // Wait for Firebase to initialize
-        if (!firebase.apps.length) {
-            throw new Error('Firebase not initialized');
+        if (!window.dbHandler) {
+            throw new Error('Database handler not initialized');
         }
-        
-        // Initialize products array if it doesn't exist
-        if (typeof products === 'undefined') {
-            window.products = [];
+        if (!window.apiHandler) {
+            throw new Error('API handler not initialized');
         }
-        
+
         this.initializeEventListeners();
-        this.loadProducts();
+        this.loadProducts().catch(error => {
+            console.error('Failed to load products:', error);
+            this.handleError(error);
+        });
     }
 
     initializeEventListeners() {
@@ -235,11 +235,21 @@ class AdminDashboard {
     }
 }
 
-// Initialize the dashboard only after DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    try {
-        window.adminDashboard = new AdminDashboard();
-    } catch (error) {
-        console.error('Failed to initialize dashboard:', error);
+// Initialize dashboard when everything is ready
+function initDashboard() {
+    if (window.dbHandler && window.apiHandler) {
+        try {
+            window.adminDashboard = new AdminDashboard();
+        } catch (error) {
+            console.error('Failed to initialize dashboard:', error);
+            // Retry after a short delay
+            setTimeout(initDashboard, 1000);
+        }
+    } else {
+        // Wait for handlers to be ready
+        setTimeout(initDashboard, 100);
     }
-}); 
+}
+
+// Start initialization after DOM is loaded
+document.addEventListener('DOMContentLoaded', initDashboard); 

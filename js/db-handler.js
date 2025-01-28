@@ -1,10 +1,22 @@
 class DatabaseHandler {
     constructor() {
-        if (!firebase.apps.length) {
-            throw new Error('Firebase not initialized');
+        try {
+            if (!firebase.apps.length) {
+                throw new Error('Firebase not initialized');
+            }
+            this.db = firebase.firestore();
+            this.productsCollection = this.db.collection('products');
+            
+            // Test the connection
+            this.productsCollection.get().then(() => {
+                console.log('Firestore connection successful');
+            }).catch(error => {
+                console.error('Firestore connection error:', error);
+            });
+        } catch (error) {
+            console.error('DatabaseHandler initialization error:', error);
+            throw error;
         }
-        this.db = firebase.firestore();
-        this.productsCollection = this.db.collection('products');
     }
 
     async getAllProducts() {
@@ -71,9 +83,18 @@ class DatabaseHandler {
     }
 }
 
-// Create global instance only after Firebase is initialized
-try {
-    window.dbHandler = new DatabaseHandler();
-} catch (error) {
-    console.error('Failed to initialize database handler:', error);
-} 
+// Initialize handler after Firebase is ready
+function initDatabaseHandler() {
+    try {
+        if (!window.dbHandler) {
+            window.dbHandler = new DatabaseHandler();
+        }
+    } catch (error) {
+        console.error('Failed to initialize database handler:', error);
+        // Retry after a short delay
+        setTimeout(initDatabaseHandler, 1000);
+    }
+}
+
+// Start initialization
+initDatabaseHandler(); 
