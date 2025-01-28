@@ -1,9 +1,12 @@
 class AdminDashboard {
-    async initialize() {
-        this.api = new APIHandler();
-        await this.api.initialize();
+    constructor() {
+        // Initialize products array if it doesn't exist
+        if (typeof products === 'undefined') {
+            window.products = [];
+        }
+        
         this.initializeEventListeners();
-        await this.loadProducts();
+        this.loadProducts();
     }
 
     initializeEventListeners() {
@@ -45,12 +48,8 @@ class AdminDashboard {
         });
     }
 
-    async loadProducts() {
+    loadProducts() {
         try {
-            console.log('Loading products...');
-            const products = await this.api.fetchProducts();
-            window.products = products; // Update global products
-            
             const productsGrid = document.querySelector('.products-grid');
             if (!products || !products.length) {
                 productsGrid.innerHTML = `
@@ -63,9 +62,7 @@ class AdminDashboard {
             }
             
             productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
-            console.log('Products loaded:', products.length);
         } catch (error) {
-            console.error('Failed to load products:', error);
             this.handleError(error, 'Failed to load products');
         }
     }
@@ -157,47 +154,29 @@ class AdminDashboard {
         this.loadProducts();
     }
 
-    async addProduct(productData) {
-        try {
-            products.push(productData);
-            await this.api.updateProducts(products);
-            this.showNotification('Product added successfully!', 'success');
-            await this.loadProducts(); // Reload to show updated data
-        } catch (error) {
-            console.error('Failed to add product:', error);
-            this.showNotification('Failed to add product. Please try again.', 'error');
-            await this.loadProducts(); // Reload to ensure consistency
+    addProduct(productData) {
+        products.push(productData);
+        saveProducts(); // Save to localStorage
+        this.showNotification('Product added successfully!', 'success');
+    }
+
+    updateProduct(productData) {
+        const index = products.findIndex(p => p.id === productData.id);
+        if (index !== -1) {
+            products[index] = productData;
+            saveProducts(); // Save to localStorage
+            this.showNotification('Product updated successfully!', 'success');
         }
     }
 
-    async updateProduct(productData) {
-        try {
-            const index = products.findIndex(p => p.id === productData.id);
-            if (index !== -1) {
-                products[index] = productData;
-                await this.api.updateProducts(products);
-                this.showNotification('Product updated successfully!', 'success');
-                await this.loadProducts(); // Reload to show updated data
-            }
-        } catch (error) {
-            console.error('Failed to update product:', error);
-            this.showNotification('Failed to update product. Please try again.', 'error');
-            await this.loadProducts(); // Reload to ensure consistency
-        }
-    }
-
-    async deleteProduct(productId) {
+    deleteProduct(productId) {
         if (confirm('Are you sure you want to delete this product?')) {
-            try {
-                const index = products.findIndex(p => p.id === productId);
-                if (index !== -1) {
-                    products.splice(index, 1);
-                    await this.api.updateProducts(products);
-                    this.loadProducts();
-                    this.showNotification('Product deleted successfully!', 'success');
-                }
-            } catch (error) {
-                this.handleError(error, 'Failed to delete product');
+            const index = products.findIndex(p => p.id === productId);
+            if (index !== -1) {
+                products.splice(index, 1);
+                saveProducts(); // Save to localStorage
+                this.loadProducts();
+                this.showNotification('Product deleted successfully!', 'success');
             }
         }
     }
@@ -209,17 +188,13 @@ class AdminDashboard {
         }
     }
 
-    async quickUpdatePrice(productId, newPrice) {
-        try {
-            const product = products.find(p => p.id === productId);
-            if (product) {
-                product.price = parseFloat(newPrice);
-                await this.api.updateProducts(products);
-                this.loadProducts();
-                this.showNotification('Price updated successfully!', 'success');
-            }
-        } catch (error) {
-            this.handleError(error, 'Failed to update price');
+    quickUpdatePrice(productId, newPrice) {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            product.price = parseFloat(newPrice);
+            saveProducts(); // Save to localStorage
+            this.loadProducts();
+            this.showNotification('Price updated successfully!', 'success');
         }
     }
 
@@ -244,12 +219,5 @@ class AdminDashboard {
     }
 }
 
-// Initialize when everything is ready
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        window.adminDashboard = new AdminDashboard();
-        await window.adminDashboard.initialize();
-    } catch (error) {
-        console.error('Failed to initialize dashboard:', error);
-    }
-}); 
+// Initialize the dashboard
+const adminDashboard = new AdminDashboard(); 
