@@ -1,0 +1,15 @@
+{
+  "name": "fivem-store",
+  "version": "1.0.0",
+  "description": "FiveM Store with Tebex Integration",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^2.6.9"
+  },
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "devDependencies": {
+    "netlify-cli": "^12.0.0"
+  }
+} 
