@@ -1,10 +1,6 @@
 class AdminDashboard {
     constructor() {
-        // Initialize products array if it doesn't exist
-        if (typeof products === 'undefined') {
-            window.products = [];
-        }
-        
+        this.api = new APIHandler();
         this.initializeEventListeners();
         this.loadProducts();
     }
@@ -48,8 +44,11 @@ class AdminDashboard {
         });
     }
 
-    loadProducts() {
+    async loadProducts() {
         try {
+            const products = await this.api.fetchProducts();
+            window.products = products; // Update global products
+            
             const productsGrid = document.querySelector('.products-grid');
             if (!products || !products.length) {
                 productsGrid.innerHTML = `
@@ -154,29 +153,41 @@ class AdminDashboard {
         this.loadProducts();
     }
 
-    addProduct(productData) {
-        products.push(productData);
-        saveProducts(); // Save to localStorage
-        this.showNotification('Product added successfully!', 'success');
-    }
-
-    updateProduct(productData) {
-        const index = products.findIndex(p => p.id === productData.id);
-        if (index !== -1) {
-            products[index] = productData;
-            saveProducts(); // Save to localStorage
-            this.showNotification('Product updated successfully!', 'success');
+    async addProduct(productData) {
+        try {
+            products.push(productData);
+            await this.api.updateProducts(products);
+            this.showNotification('Product added successfully!', 'success');
+        } catch (error) {
+            this.handleError(error, 'Failed to add product');
         }
     }
 
-    deleteProduct(productId) {
-        if (confirm('Are you sure you want to delete this product?')) {
-            const index = products.findIndex(p => p.id === productId);
+    async updateProduct(productData) {
+        try {
+            const index = products.findIndex(p => p.id === productData.id);
             if (index !== -1) {
-                products.splice(index, 1);
-                saveProducts(); // Save to localStorage
-                this.loadProducts();
-                this.showNotification('Product deleted successfully!', 'success');
+                products[index] = productData;
+                await this.api.updateProducts(products);
+                this.showNotification('Product updated successfully!', 'success');
+            }
+        } catch (error) {
+            this.handleError(error, 'Failed to update product');
+        }
+    }
+
+    async deleteProduct(productId) {
+        if (confirm('Are you sure you want to delete this product?')) {
+            try {
+                const index = products.findIndex(p => p.id === productId);
+                if (index !== -1) {
+                    products.splice(index, 1);
+                    await this.api.updateProducts(products);
+                    this.loadProducts();
+                    this.showNotification('Product deleted successfully!', 'success');
+                }
+            } catch (error) {
+                this.handleError(error, 'Failed to delete product');
             }
         }
     }
@@ -188,13 +199,17 @@ class AdminDashboard {
         }
     }
 
-    quickUpdatePrice(productId, newPrice) {
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            product.price = parseFloat(newPrice);
-            saveProducts(); // Save to localStorage
-            this.loadProducts();
-            this.showNotification('Price updated successfully!', 'success');
+    async quickUpdatePrice(productId, newPrice) {
+        try {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                product.price = parseFloat(newPrice);
+                await this.api.updateProducts(products);
+                this.loadProducts();
+                this.showNotification('Price updated successfully!', 'success');
+            }
+        } catch (error) {
+            this.handleError(error, 'Failed to update price');
         }
     }
 
