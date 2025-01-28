@@ -1,6 +1,6 @@
-// Load environment variables from .env file
+// This file will be overwritten during deployment
 const API_CONFIG = {
-    token: process.env.GITHUB_TOKEN || '',
+    token: 'development_token', // Will be replaced during deployment
     baseUrl: 'https://api.github.com/repos/2cpe/botgames/contents',
     branch: 'main'
 }; 
