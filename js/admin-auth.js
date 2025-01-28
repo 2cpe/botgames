@@ -9,17 +9,20 @@ class AdminAuth {
     }
 
     init() {
-        // Check if we have a token
-        const token = localStorage.getItem('discord_token');
-        if (token) {
-            this.verifyAccess(token);
+        // Check if we're returning from Discord OAuth
+        const fragment = new URLSearchParams(window.location.hash.slice(1));
+        const accessToken = fragment.get('access_token');
+        
+        if (accessToken) {
+            // Store the token and clear the URL
+            localStorage.setItem('discord_token', accessToken);
+            window.location.hash = '';
+            this.verifyAccess(accessToken);
         } else {
-            // Check if we're returning from Discord OAuth
-            const fragment = new URLSearchParams(window.location.hash.slice(1));
-            const [accessToken, tokenType] = [fragment.get('access_token'), fragment.get('token_type')];
-
-            if (accessToken) {
-                this.verifyAccess(accessToken);
+            // Check if we have a stored token
+            const storedToken = localStorage.getItem('discord_token');
+            if (storedToken) {
+                this.verifyAccess(storedToken);
             } else {
                 this.redirectToDiscord();
             }
@@ -48,25 +51,43 @@ class AdminAuth {
             if (hasAccess) {
                 this.showDashboard(user);
             } else {
+                localStorage.removeItem('discord_token');
                 this.showAccessDenied();
             }
         } catch (error) {
             console.error('Auth error:', error);
+            localStorage.removeItem('discord_token');
             this.showAccessDenied();
         }
     }
 
     async fetchUserInfo(token) {
         const response = await fetch('https://discord.com/api/users/@me', {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch user info');
+        }
+        
         return await response.json();
     }
 
     async checkUserRole(token) {
         const response = await fetch(`https://discord.com/api/users/@me/guilds/${this.GUILD_ID}/member`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
         });
+        
+        if (!response.ok) {
+            throw new Error('Failed to check user role');
+        }
+        
         const member = await response.json();
         return member.roles.includes(this.REQUIRED_ROLE_ID);
     }
@@ -76,8 +97,11 @@ class AdminAuth {
         document.getElementById('admin-dashboard').style.display = 'block';
         
         // Set user info
-        document.getElementById('user-avatar').src = 
-            `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+        const avatarUrl = user.avatar ? 
+            `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` :
+            'https://cdn.discordapp.com/embed/avatars/0.png';
+            
+        document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('user-name').textContent = user.username;
     }
 
@@ -88,4 +112,4 @@ class AdminAuth {
 }
 
 // Initialize authentication
-new AdminAuth(); 
+const auth = new AdminAuth(); 
