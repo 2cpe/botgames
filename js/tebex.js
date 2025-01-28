@@ -1,5 +1,5 @@
-// Replace with your Netlify functions URL
-const NETLIFY_FUNCTIONS_URL = 'https://your-netlify-app.netlify.app/.netlify/functions';
+// Get the new URL from your Netlify deployment
+const NETLIFY_FUNCTIONS_URL = 'https://dreamy-dango-3e514a.netlify.app/.netlify/functions';
 
 async function fetchTebexProducts() {
     try {
