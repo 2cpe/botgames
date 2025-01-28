@@ -89,17 +89,20 @@ class AdminDashboard {
                         id="quick-price-${product.id}"
                         onchange="adminDashboard.quickUpdatePrice(${product.id}, this.value)"
                     >
-                    <button onclick="adminDashboard.quickUpdatePrice(${product.id}, document.getElementById('quick-price-${product.id}').value)">
-                        <i class="fas fa-save"></i>
-                    </button>
                 </div>
-                <h3>${product.name}</h3>
-                <p>${product.shortDescription}</p>
-                <div class="price">$${product.price}</div>
-                <div class="product-status">
-                    <span class="badge ${product.badge ? 'badge-' + product.badge.toLowerCase() : ''}">${product.badge || 'No Badge'}</span>
-                    <span class="category">${product.category}</span>
+                
+                <div class="product-header">
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p>${product.shortDescription}</p>
+                        <div class="product-meta">
+                            ${product.badge ? `<span class="badge">${product.badge}</span>` : ''}
+                            <span class="category">${product.category}</span>
+                        </div>
+                    </div>
+                    <div class="price-tag">${product.price}</div>
                 </div>
+
                 <div class="card-actions">
                     <button class="edit-btn" onclick="adminDashboard.editProduct(${product.id})">
                         <i class="fas fa-edit"></i> Edit Details
