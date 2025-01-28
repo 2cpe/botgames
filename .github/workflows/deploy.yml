@@ -1,26 +1,48 @@
-name: Deploy to GitHub Pages
+name: Deploy static content to Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Create env file
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Create env.js from secret
         run: |
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+          echo "const API_CONFIG = {" > js/api-config.js
+          echo "  token: '${{ secrets.GITHUB_TOKEN }}'," >> js/api-config.js
+          echo "  baseUrl: 'https://api.github.com/repos/2cpe/botgames/contents'," >> js/api-config.js
+          echo "  branch: 'main'" >> js/api-config.js
+          echo "};" >> js/api-config.js
 
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@4.1.5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          branch: gh-pages
-          folder: .
-          token: ${{ secrets.GITHUB_TOKEN }}
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
