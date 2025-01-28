@@ -4,7 +4,7 @@ class AdminAuth {
         this.DISCORD_REDIRECT_URI = 'https://2cpe.github.io/botgames/admin.html';
         this.REQUIRED_ROLE_ID = '1327749769770307686'; // Replace with your admin role ID
         this.GUILD_ID = '1327749495567552592'; // Replace with your Discord server ID
-        this.GITHUB_TOKEN = ENV.GITHUB_TOKEN;
+        
         // Add debug logging
         console.log('AdminAuth initialized');
         this.init();
@@ -134,10 +134,6 @@ class AdminAuth {
             
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('user-name').textContent = user.username;
-        
-        // Set the API token when admin logs in
-        const apiToken = ENV.GITHUB_TOKEN; // Get this from environment variable
-        gitHubAPI.setToken(apiToken);
     }
 
     showAccessDenied() {

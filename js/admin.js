@@ -50,10 +50,9 @@ class AdminDashboard {
 
     async loadProducts() {
         try {
-            const products = await gitHubAPI.fetchProducts();
-            window.products = products; // Update global products
-
             const productsGrid = document.querySelector('.products-grid');
+            const products = await dbHandler.getAllProducts();
+            
             if (!products || !products.length) {
                 productsGrid.innerHTML = `
                     <div class="no-products">
@@ -130,66 +129,49 @@ class AdminDashboard {
         document.getElementById('product-modal').style.display = 'none';
     }
 
-    saveProduct() {
-        const form = document.getElementById('product-form');
-        const productData = {
-            name: form.elements.name.value,
-            shortDescription: form.elements.shortDescription.value,
-            fullDescription: form.elements.fullDescription.value,
-            price: parseFloat(form.elements.price.value),
-            badge: form.elements.badge.value || null,
-            category: form.elements.category.value,
-            features: form.elements.features.value.split('\n').filter(f => f.trim()),
-            images: form.elements.images.value.split('\n').filter(i => i.trim())
-        };
+    async saveProduct() {
+        try {
+            const form = document.getElementById('product-form');
+            const productData = {
+                name: form.elements.name.value,
+                shortDescription: form.elements.shortDescription.value,
+                fullDescription: form.elements.fullDescription.value,
+                price: parseFloat(form.elements.price.value),
+                badge: form.elements.badge.value || null,
+                category: form.elements.category.value,
+                features: form.elements.features.value.split('\n').filter(f => f.trim()),
+                images: form.elements.images.value.split('\n').filter(i => i.trim())
+            };
 
-        if (form.dataset.productId) {
-            // Update existing product
-            productData.id = parseInt(form.dataset.productId);
-            this.updateProduct(productData);
-        } else {
-            // Add new product
-            productData.id = Math.max(...products.map(p => p.id)) + 1;
-            this.addProduct(productData);
+            if (form.dataset.productId) {
+                await this.updateProduct(form.dataset.productId, productData);
+            } else {
+                await this.addProduct(productData);
+            }
+
+            this.closeProductModal();
+            this.loadProducts();
+        } catch (error) {
+            this.handleError(error, 'Failed to save product');
         }
-
-        this.closeProductModal();
-        this.loadProducts();
     }
 
     async addProduct(productData) {
-        try {
-            products.push(productData);
-            await gitHubAPI.updateProducts(products);
-            this.showNotification('Product added successfully!', 'success');
-        } catch (error) {
-            this.handleError(error, 'Failed to add product');
-        }
+        await dbHandler.addProduct(productData);
+        this.showNotification('Product added successfully!', 'success');
     }
 
-    async updateProduct(productData) {
-        try {
-            const index = products.findIndex(p => p.id === productData.id);
-            if (index !== -1) {
-                products[index] = productData;
-                await gitHubAPI.updateProducts(products);
-                this.showNotification('Product updated successfully!', 'success');
-            }
-        } catch (error) {
-            this.handleError(error, 'Failed to update product');
-        }
+    async updateProduct(productId, productData) {
+        await dbHandler.updateProduct(productId, productData);
+        this.showNotification('Product updated successfully!', 'success');
     }
 
     async deleteProduct(productId) {
         if (confirm('Are you sure you want to delete this product?')) {
             try {
-                const index = products.findIndex(p => p.id === productId);
-                if (index !== -1) {
-                    products.splice(index, 1);
-                    await gitHubAPI.updateProducts(products);
-                    this.loadProducts();
-                    this.showNotification('Product deleted successfully!', 'success');
-                }
+                await dbHandler.deleteProduct(productId);
+                this.loadProducts();
+                this.showNotification('Product deleted successfully!', 'success');
             } catch (error) {
                 this.handleError(error, 'Failed to delete product');
             }
@@ -203,11 +185,19 @@ class AdminDashboard {
         }
     }
 
-    quickUpdatePrice(productId, newPrice) {
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            product.price = parseFloat(newPrice);
-            this.updateProduct(product);
+    async quickUpdatePrice(productId, newPrice) {
+        try {
+            const product = await dbHandler.getProduct(productId);
+            if (product) {
+                await dbHandler.updateProduct(productId, {
+                    ...product,
+                    price: parseFloat(newPrice)
+                });
+                this.loadProducts();
+                this.showNotification('Price updated successfully!', 'success');
+            }
+        } catch (error) {
+            this.handleError(error, 'Failed to update price');
         }
     }
 
