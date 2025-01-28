@@ -2,9 +2,10 @@ require('dotenv').config();
 
 class APIHandler {
     constructor() {
-        this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
-        this.branch = 'main';
-        this.token = process.env.API_TOKEN;
+        this.baseUrl = API_CONFIG.baseUrl;
+        this.branch = API_CONFIG.branch;
+        // Token will be injected during build
+        this.token = '__API_TOKEN__';  // This placeholder will be replaced during build
     }
 
     async fetchProducts() {
