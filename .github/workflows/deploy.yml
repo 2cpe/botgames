@@ -2,43 +2,25 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build
-        env:
-          API_TOKEN: ${{ secrets.API_TOKEN }}
+      - name: Create env file
         run: |
-          # More secure token replacement using perl
-          perl -pi -e "s/###API_TOKEN###/${{ secrets.API_TOKEN }}/g" js/api-handler.js
-          
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .env
+
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
+        uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
           branch: gh-pages
           folder: .
-          token: ${{ secrets.API_TOKEN }}
-          clean: true
-          clean-exclude: |
-            .env
-            .gitignore
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Clean up
-        run: rm -rf .env .gitignore 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
