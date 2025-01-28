@@ -26,8 +26,8 @@ jobs:
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
-          # More secure token replacement
-          sed -i "s/__API_TOKEN__/${{ secrets.API_TOKEN }}/" js/api-handler.js
+          # More secure token replacement using perl
+          perl -pi -e "s/###API_TOKEN###/${{ secrets.API_TOKEN }}/g" js/api-handler.js
           
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
@@ -35,4 +35,10 @@ jobs:
           branch: gh-pages
           folder: .
           token: ${{ secrets.API_TOKEN }}
-          clean: true 
+          clean: true
+          clean-exclude: |
+            .env
+            .gitignore
+
+      - name: Clean up
+        run: rm -rf .env .gitignore 
