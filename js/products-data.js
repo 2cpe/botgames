@@ -1,4 +1,5 @@
-const products = [
+// Define the products array globally
+window.products = [
     {
         id: 1,
         name: "Modern UI Dashboard",

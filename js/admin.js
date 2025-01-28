@@ -1,5 +1,10 @@
 class AdminDashboard {
     constructor() {
+        // Initialize products array if it doesn't exist
+        if (typeof products === 'undefined') {
+            window.products = [];
+        }
+        
         this.initializeEventListeners();
         this.loadProducts();
     }
@@ -44,8 +49,22 @@ class AdminDashboard {
     }
 
     loadProducts() {
-        const productsGrid = document.querySelector('.products-grid');
-        productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
+        try {
+            const productsGrid = document.querySelector('.products-grid');
+            if (!products || !products.length) {
+                productsGrid.innerHTML = `
+                    <div class="no-products">
+                        <i class="fas fa-box-open"></i>
+                        <p>No products found. Add your first product!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
+        } catch (error) {
+            this.handleError(error, 'Failed to load products');
+        }
     }
 
     renderProductCard(product) {
@@ -191,6 +210,11 @@ class AdminDashboard {
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+
+    handleError(error, message = 'An error occurred') {
+        console.error(error);
+        this.showNotification(message, 'error');
     }
 }
 
