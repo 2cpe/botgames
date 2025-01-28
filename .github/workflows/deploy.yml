@@ -27,6 +27,14 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Create api-config.js
+        run: |
+          echo "const API_CONFIG = {" > js/api-config.js
+          echo "  token: '${{ secrets.GITHUB_TOKEN }}'," >> js/api-config.js
+          echo "  baseUrl: 'https://api.github.com/repos/2cpe/botgames/contents'," >> js/api-config.js
+          echo "  branch: '${{ github.ref_name }}'" >> js/api-config.js
+          echo "};" >> js/api-config.js
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
