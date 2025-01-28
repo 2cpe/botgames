@@ -1,15 +1,12 @@
 {
   "name": "fivem-store",
   "version": "1.0.0",
-  "description": "FiveM Store with Tebex Integration",
-  "main": "index.js",
-  "dependencies": {
-    "node-fetch": "^2.6.9"
-  },
+  "description": "FiveM Store with GitHub API",
   "scripts": {
-    "dev": "netlify dev"
+    "start": "node -r dotenv/config server.js",
+    "build": "echo 'No build step required'"
   },
-  "devDependencies": {
-    "netlify-cli": "^12.0.0"
+  "dependencies": {
+    "dotenv": "^16.0.3"
   }
 } 

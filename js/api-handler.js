@@ -2,13 +2,22 @@ class APIHandler {
     constructor() {
         this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
         this.branch = 'main';
-        // Your GitHub Personal Access Token (with repo scope)
-        this.token = 'YOUR_GITHUB_TOKEN';
+        this.token = process.env.GITHUB_TOKEN;
     }
 
     async fetchProducts() {
         try {
-            const response = await fetch(`${this.baseUrl}/db/products.json`);
+            const response = await fetch(`${this.baseUrl}/db/products.json`, {
+                headers: {
+                    'Authorization': `token ${this.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
             const data = await response.json();
             const content = atob(data.content);
             return JSON.parse(content).products;
@@ -21,7 +30,17 @@ class APIHandler {
     async updateProducts(products) {
         try {
             // Get the current file to get its SHA
-            const currentFile = await fetch(`${this.baseUrl}/db/products.json`);
+            const currentFile = await fetch(`${this.baseUrl}/db/products.json`, {
+                headers: {
+                    'Authorization': `token ${this.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!currentFile.ok) {
+                throw new Error(`HTTP error! status: ${currentFile.status}`);
+            }
+            
             const fileData = await currentFile.json();
 
             // Prepare new content
@@ -38,6 +57,7 @@ class APIHandler {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${this.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
@@ -49,7 +69,8 @@ class APIHandler {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to update products');
+                const error = await response.json();
+                throw new Error(`Failed to update products: ${error.message}`);
             }
 
             return true;
