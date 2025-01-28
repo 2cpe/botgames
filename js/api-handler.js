@@ -4,7 +4,7 @@ class APIHandler {
     constructor() {
         this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
         this.branch = 'main';
-        this.token = process.env.GITHUB_TOKEN;
+        this.token = process.env.API_TOKEN;
     }
 
     async fetchProducts() {
