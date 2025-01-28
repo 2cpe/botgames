@@ -1,12 +1,12 @@
 class APIHandler {
     constructor() {
-        this.baseUrl = API_CONFIG.baseUrl;
-        this.branch = API_CONFIG.branch;
-        this.token = API_CONFIG.token;
+        this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
+        this.branch = 'main';
     }
 
     async fetchProducts() {
         try {
+            // Use public access for reading products
             const response = await fetch(`${this.baseUrl}/db/products.json`);
             const data = await response.json();
             const content = atob(data.content);
@@ -19,32 +19,15 @@ class APIHandler {
 
     async updateProducts(products) {
         try {
-            // Get the current file to get its SHA
-            const currentFile = await fetch(`${this.baseUrl}/db/products.json`);
-            const fileData = await currentFile.json();
-
-            // Prepare new content
-            const newContent = {
-                products: products,
-                lastUpdate: new Date().toISOString()
-            };
-
-            // Convert to base64
-            const content = btoa(JSON.stringify(newContent, null, 2));
-
-            // Update file in GitHub
-            const response = await fetch(`${this.baseUrl}/db/products.json`, {
-                method: 'PUT',
+            // Use a secure backend endpoint instead of direct GitHub access
+            const response = await fetch('/api/products/update', {
+                method: 'POST',
                 headers: {
-                    'Authorization': `token ${this.token}`,
                     'Content-Type': 'application/json',
+                    // Send Discord token for authentication
+                    'Authorization': `Bearer ${localStorage.getItem('discord_token')}`
                 },
-                body: JSON.stringify({
-                    message: 'Update products',
-                    content: content,
-                    sha: fileData.sha,
-                    branch: this.branch
-                })
+                body: JSON.stringify(products)
             });
 
             if (!response.ok) {
@@ -57,4 +40,7 @@ class APIHandler {
             return false;
         }
     }
-} 
+}
+
+// Make APIHandler available globally
+window.APIHandler = APIHandler; 

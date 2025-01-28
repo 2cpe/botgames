@@ -1,5 +1,8 @@
 class AdminDashboard {
     constructor() {
+        if (!window.APIHandler) {
+            throw new Error('APIHandler not loaded');
+        }
         this.api = new APIHandler();
         this.initializeEventListeners();
         this.loadProducts();
@@ -237,7 +240,7 @@ class AdminDashboard {
     }
 }
 
-// Wait for DOM to be ready before initializing
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize dashboard only after authentication is complete
+window.initAdminDashboard = () => {
     window.adminDashboard = new AdminDashboard();
-}); 
+}; 

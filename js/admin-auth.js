@@ -146,6 +146,11 @@ class AdminAuth {
             
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('user-name').textContent = user.username;
+
+        // Initialize the admin dashboard after successful authentication
+        if (window.initAdminDashboard) {
+            window.initAdminDashboard();
+        }
     }
 
     showAccessDenied(message = 'You do not have permission to access this area.') {
