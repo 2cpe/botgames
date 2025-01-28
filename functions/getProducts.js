@@ -36,79 +36,64 @@ exports.handler = async function(event, context) {
 
   try {
     console.log('Attempting to fetch server information...');
-    const infoResponse = await fetch('https://plugin.tebex.io/information', {
+    const response = await fetch('https://plugin.tebex.io/store', {
       headers: {
-        'X-Tebex-Secret': process.env.TEBEX_SECRET
+        'X-Tebex-Secret': process.env.TEBEX_SECRET,
+        'Content-Type': 'application/json'
       }
     });
 
-    const infoData = await infoResponse.json();
-    console.log('Server info response:', {
-      status: infoResponse.status,
-      ok: infoResponse.ok,
-      data: infoData
-    });
-
-    if (!infoResponse.ok) {
-      throw new Error(`API Info Error: ${infoResponse.status} - ${JSON.stringify(infoData)}`);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Tebex API Error:', {
+        status: response.status,
+        data: errorData
+      });
+      throw new Error(`API Error: ${response.status}`);
     }
 
-    console.log('Fetching packages...');
-    const packagesResponse = await fetch('https://plugin.tebex.io/packages', {
-      headers: {
-        'X-Tebex-Secret': process.env.TEBEX_SECRET
+    const data = await response.json();
+    console.log('API Response:', data);
+
+    // Create dummy data for testing
+    const dummyPackages = [
+      {
+        id: 1,
+        name: "Modern UI Dashboard",
+        price: 24.99,
+        image: "./assets/images/default-product.jpg",
+        short_description: "A sleek and intuitive dashboard interface",
+        description: "A modern dashboard interface for your FiveM server",
+        features: [
+          'Real-time statistics',
+          'Customizable UI',
+          'Easy installation',
+          'Regular updates',
+          '24/7 support'
+        ]
       }
-    });
-
-    const packagesData = await packagesResponse.json();
-    console.log('Packages response:', {
-      status: packagesResponse.status,
-      ok: packagesResponse.ok,
-      count: Array.isArray(packagesData) ? packagesData.length : 'not an array'
-    });
-
-    if (!packagesResponse.ok) {
-      throw new Error(`Packages Error: ${packagesResponse.status} - ${JSON.stringify(packagesData)}`);
-    }
-
-    const formattedPackages = packagesData.map(pkg => ({
-      id: pkg.id,
-      name: pkg.name,
-      price: pkg.price,
-      image: pkg.image || './assets/images/default-product.jpg',
-      short_description: pkg.description,
-      description: pkg.description,
-      features: [
-        'Real-time statistics',
-        'Customizable UI',
-        'Easy installation',
-        'Regular updates',
-        '24/7 support'
-      ]
-    }));
+    ];
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(formattedPackages)
+      body: JSON.stringify(dummyPackages)
     };
   } catch (error) {
     console.error('Function error:', {
       message: error.message,
-      stack: error.stack,
       env: {
         hasSecret: !!process.env.TEBEX_SECRET,
-        secretStart: process.env.TEBEX_SECRET ? process.env.TEBEX_SECRET.substring(0, 4) : null
+        secretLength: process.env.TEBEX_SECRET ? process.env.TEBEX_SECRET.length : 0
       }
     });
 
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'Failed fetching products', 
-        details: error.message,
-        env: process.env.TEBEX_SECRET ? 'Secret key is set' : 'Secret key is missing'
+      body: JSON.stringify({
+        error: 'Failed fetching products',
+        details: error.message
       })
     };
   }
