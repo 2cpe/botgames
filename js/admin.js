@@ -51,7 +51,7 @@ class AdminDashboard {
     async loadProducts() {
         try {
             const productsGrid = document.querySelector('.products-grid');
-            const products = await dbHandler.getAllProducts();
+            const products = await apiHandler.fetchProducts();
             
             if (!products || !products.length) {
                 productsGrid.innerHTML = `
@@ -157,19 +157,27 @@ class AdminDashboard {
     }
 
     async addProduct(productData) {
-        await dbHandler.addProduct(productData);
-        this.showNotification('Product added successfully!', 'success');
+        try {
+            await apiHandler.addProduct(productData);
+            this.showNotification('Product added successfully!', 'success');
+        } catch (error) {
+            this.handleError(error, 'Failed to add product');
+        }
     }
 
     async updateProduct(productId, productData) {
-        await dbHandler.updateProduct(productId, productData);
-        this.showNotification('Product updated successfully!', 'success');
+        try {
+            await apiHandler.updateProduct(productId, productData);
+            this.showNotification('Product updated successfully!', 'success');
+        } catch (error) {
+            this.handleError(error, 'Failed to update product');
+        }
     }
 
     async deleteProduct(productId) {
         if (confirm('Are you sure you want to delete this product?')) {
             try {
-                await dbHandler.deleteProduct(productId);
+                await apiHandler.deleteProduct(productId);
                 this.loadProducts();
                 this.showNotification('Product deleted successfully!', 'success');
             } catch (error) {

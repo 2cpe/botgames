@@ -1,9 +1,9 @@
 class AdminAuth {
     constructor() {
-        this.DISCORD_CLIENT_ID = '1327745611230871572'; // Replace with your Discord Client ID
-        this.DISCORD_REDIRECT_URI = 'https://2cpe.github.io/botgames/admin.html';
-        this.REQUIRED_ROLE_ID = '1327749769770307686'; // Replace with your admin role ID
-        this.GUILD_ID = '1327749495567552592'; // Replace with your Discord server ID
+        this.DISCORD_CLIENT_ID = ENV.DISCORD.CLIENT_ID;
+        this.DISCORD_REDIRECT_URI = ENV.DISCORD.REDIRECT_URI;
+        this.REQUIRED_ROLE_ID = ENV.DISCORD.REQUIRED_ROLE_ID;
+        this.GUILD_ID = ENV.DISCORD.GUILD_ID;
         
         // Add debug logging
         console.log('AdminAuth initialized');
