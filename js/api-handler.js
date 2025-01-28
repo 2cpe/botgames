@@ -3,11 +3,11 @@ class GitHubAPI {
         this.owner = '2cpe'; // Your GitHub username
         this.repo = 'botgames'; // Your repository name
         this.branch = 'main'; // Your branch name
-        this.token = null; // Will be set when admin logs in
+        this.apiToken = null; // Renamed from token to apiToken
     }
 
-    setToken(token) {
-        this.token = token;
+    setToken(apiToken) {
+        this.apiToken = apiToken; // Store as apiToken
     }
 
     async fetchProducts() {
@@ -23,7 +23,7 @@ class GitHubAPI {
     }
 
     async updateProducts(products) {
-        if (!this.token) throw new Error('No authentication token');
+        if (!this.apiToken) throw new Error('No API token provided'); // Updated error message
 
         try {
             // First get the current file (to get the SHA)
@@ -51,7 +51,7 @@ class GitHubAPI {
     async getFile(path) {
         const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`, {
             headers: {
-                'Authorization': `token ${this.token}`,
+                'Authorization': `token ${this.apiToken}`, // Using apiToken here
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
@@ -64,7 +64,7 @@ class GitHubAPI {
         const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`, {
             method: 'PUT',
             headers: {
-                'Authorization': `token ${this.token}`,
+                'Authorization': `token ${this.apiToken}`, // Using apiToken here
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json',
             },
