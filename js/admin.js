@@ -95,12 +95,13 @@ class AdminDashboard {
                     <div class="product-info">
                         <h3>${product.name}</h3>
                         <p>${product.shortDescription}</p>
-                        <div class="product-meta">
-                            ${product.badge ? `<span class="badge">${product.badge}</span>` : ''}
-                            <span class="category">${product.category}</span>
-                        </div>
                     </div>
-                    <div class="price-tag">${product.price}</div>
+                    <div class="price-tag">${product.price.toFixed(2)}</div>
+                </div>
+
+                <div class="product-meta">
+                    ${product.badge ? `<span class="badge">${product.badge}</span>` : ''}
+                    <span class="category">${product.category}</span>
                 </div>
 
                 <div class="card-actions">
