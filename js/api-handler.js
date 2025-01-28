@@ -1,5 +1,8 @@
 class APIHandler {
     constructor() {
+        if (!window.dbHandler) {
+            throw new Error('Database handler not initialized');
+        }
         this.githubToken = ENV.GITHUB.TOKEN;
     }
 
@@ -43,5 +46,9 @@ class APIHandler {
     }
 }
 
-// Create global instance
-window.apiHandler = new APIHandler(); 
+// Create global instance only after dbHandler is initialized
+try {
+    window.apiHandler = new APIHandler();
+} catch (error) {
+    console.error('Failed to initialize API handler:', error);
+} 

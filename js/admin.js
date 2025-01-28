@@ -1,5 +1,10 @@
 class AdminDashboard {
     constructor() {
+        // Wait for Firebase to initialize
+        if (!firebase.apps.length) {
+            throw new Error('Firebase not initialized');
+        }
+        
         // Initialize products array if it doesn't exist
         if (typeof products === 'undefined') {
             window.products = [];
@@ -230,5 +235,11 @@ class AdminDashboard {
     }
 }
 
-// Initialize the dashboard
-const adminDashboard = new AdminDashboard(); 
+// Initialize the dashboard only after DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        window.adminDashboard = new AdminDashboard();
+    } catch (error) {
+        console.error('Failed to initialize dashboard:', error);
+    }
+}); 

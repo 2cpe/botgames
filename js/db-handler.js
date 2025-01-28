@@ -1,6 +1,10 @@
 class DatabaseHandler {
     constructor() {
-        this.productsCollection = db.collection('products');
+        if (!firebase.apps.length) {
+            throw new Error('Firebase not initialized');
+        }
+        this.db = firebase.firestore();
+        this.productsCollection = this.db.collection('products');
     }
 
     async getAllProducts() {
@@ -67,5 +71,9 @@ class DatabaseHandler {
     }
 }
 
-// Create global instance
-window.dbHandler = new DatabaseHandler(); 
+// Create global instance only after Firebase is initialized
+try {
+    window.dbHandler = new DatabaseHandler();
+} catch (error) {
+    console.error('Failed to initialize database handler:', error);
+} 
