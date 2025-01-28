@@ -30,7 +30,7 @@ function createProductCard(product) {
     return `
         <div class="product-card" onclick="window.location.href='product.html?id=${product.id}'">
             <div class="product-image">
-                <img src="${product.image || 'assets/images/default-product.jpg'}" alt="${product.name}">
+                <img src="${product.image || './assets/images/default-product.jpg'}" alt="${product.name}">
                 ${product.featured ? '<div class="product-badge">Featured</div>' : ''}
             </div>
             <div class="product-content">

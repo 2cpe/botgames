@@ -1,11 +1,26 @@
 const fetch = require('node-fetch');
 
 exports.handler = async function(event, context) {
-  // Check if environment variable exists
+  // Add CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*', // For development, use specific origin in production
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+  };
+
+  // Handle OPTIONS request (preflight)
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: ''
+    };
+  }
+
   if (!process.env.TEBEX_SECRET) {
-    console.error('TEBEX_SECRET environment variable is not set');
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ error: 'Server configuration error' })
     };
   }
@@ -28,16 +43,14 @@ exports.handler = async function(event, context) {
     
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      },
+      headers,
       body: JSON.stringify(data)
     };
   } catch (error) {
     console.error('Error in getProducts:', error.message);
     return {
       statusCode: 500,
+      headers,
       body: JSON.stringify({ error: 'Failed fetching products', details: error.message })
     };
   }
