@@ -26,12 +26,13 @@ jobs:
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
-          # Replace token placeholder in api-handler.js
-          sed -i "s/process.env.API_TOKEN/'${{ secrets.API_TOKEN }}'/" js/api-handler.js
+          # More secure token replacement
+          sed -i "s/__API_TOKEN__/${{ secrets.API_TOKEN }}/" js/api-handler.js
           
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: .
-          token: ${{ secrets.API_TOKEN }} 
+          token: ${{ secrets.API_TOKEN }}
+          clean: true 
