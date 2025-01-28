@@ -5,14 +5,18 @@ class DatabaseHandler {
                 throw new Error('Firebase not initialized');
             }
             this.db = firebase.firestore();
-            this.productsCollection = this.db.collection('products');
+            this.rtdb = firebase.database();
+            this.productsRef = this.rtdb.ref('products');
+            this.usersRef = this.rtdb.ref('users');
             
             // Test the connection
-            this.productsCollection.get().then(() => {
+            this.productsRef.get().then(() => {
                 console.log('Firestore connection successful');
             }).catch(error => {
                 console.error('Firestore connection error:', error);
             });
+
+            console.log('Database handler initialized successfully');
         } catch (error) {
             console.error('DatabaseHandler initialization error:', error);
             throw error;
@@ -21,7 +25,7 @@ class DatabaseHandler {
 
     async getAllProducts() {
         try {
-            const snapshot = await this.productsCollection.get();
+            const snapshot = await this.productsRef.get();
             return snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
@@ -34,11 +38,8 @@ class DatabaseHandler {
 
     async addProduct(productData) {
         try {
-            const docRef = await this.productsCollection.add({
-                ...productData,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return docRef.id;
+            const docRef = await this.productsRef.push(productData);
+            return docRef.key;
         } catch (error) {
             console.error('Error adding product:', error);
             throw error;
@@ -47,10 +48,7 @@ class DatabaseHandler {
 
     async updateProduct(productId, productData) {
         try {
-            await this.productsCollection.doc(productId).update({
-                ...productData,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            await this.productsRef.child(productId).update(productData);
         } catch (error) {
             console.error('Error updating product:', error);
             throw error;
@@ -59,7 +57,7 @@ class DatabaseHandler {
 
     async deleteProduct(productId) {
         try {
-            await this.productsCollection.doc(productId).delete();
+            await this.productsRef.child(productId).remove();
         } catch (error) {
             console.error('Error deleting product:', error);
             throw error;
@@ -68,12 +66,9 @@ class DatabaseHandler {
 
     async getProduct(productId) {
         try {
-            const doc = await this.productsCollection.doc(productId).get();
+            const doc = await this.productsRef.child(productId).get();
             if (doc.exists) {
-                return {
-                    id: doc.id,
-                    ...doc.data()
-                };
+                return doc.data();
             }
             return null;
         } catch (error) {

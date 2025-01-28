@@ -5,7 +5,8 @@ const firebaseConfig = {
   projectId: "m2store-b682e",
   storageBucket: "m2store-b682e.firebasestorage.app",
   messagingSenderId: "980857359138",
-  appId: "1:980857359138:web:1092b1a946f044f6ca337b"
+  appId: "1:980857359138:web:1092b1a946f044f6ca337b",
+  databaseURL: `https://${projectId}.firebaseio.com`
 };
 
 // Initialize Firebase with error handling
@@ -14,9 +15,12 @@ try {
     firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
+  const rtdb = firebase.database(); // Initialize Realtime Database
+  window.db = db;
+  window.rtdb = rtdb;
   console.log('Firebase initialized successfully');
 
-  // Add this after Firebase initialization
+  // Enable offline persistence
   db.enablePersistence()
     .then(() => {
       console.log('Offline persistence enabled');
@@ -30,4 +34,4 @@ try {
     });
 } catch (error) {
   console.error('Firebase initialization error:', error);
-} 
+}

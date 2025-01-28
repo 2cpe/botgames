@@ -123,17 +123,25 @@ class AdminAuth {
         }
     }
 
-    showDashboard(user) {
-        console.log('Showing dashboard for user:', user.username);
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('admin-dashboard').style.display = 'block';
-        
-        const avatarUrl = user.avatar ? 
-            `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` :
-            'https://cdn.discordapp.com/embed/avatars/0.png';
+    async showDashboard(user) {
+        try {
+            // Set user role if they have the required Discord role
+            await authRoles.setUserRole(user.id, 'admin');
             
-        document.getElementById('user-avatar').src = avatarUrl;
-        document.getElementById('user-name').textContent = user.username;
+            console.log('Showing dashboard for user:', user.username);
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            
+            const avatarUrl = user.avatar ? 
+                `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` :
+                'https://cdn.discordapp.com/embed/avatars/0.png';
+                
+            document.getElementById('user-avatar').src = avatarUrl;
+            document.getElementById('user-name').textContent = user.username;
+        } catch (error) {
+            console.error('Error setting up user:', error);
+            this.showAccessDenied();
+        }
     }
 
     showAccessDenied() {

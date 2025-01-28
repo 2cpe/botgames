@@ -156,6 +156,7 @@
 
     <!-- Initialize Firebase first -->
     <script src="./js/firebase-config.js"></script>
+    <script src="./js/auth-roles.js"></script>
     <script>
         // Ensure Firebase is initialized before continuing
         if (!firebase.apps.length) {
@@ -201,5 +202,8 @@
         });
     </script>
     <script src="./js/admin.js"></script>
+
+    <!-- Add after firebase-config.js -->
+    <script src="./js/db-config.js"></script>
 </body>
 </html> 
