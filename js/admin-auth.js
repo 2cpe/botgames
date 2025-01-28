@@ -134,6 +134,10 @@ class AdminAuth {
             
         document.getElementById('user-avatar').src = avatarUrl;
         document.getElementById('user-name').textContent = user.username;
+        
+        // Set the GitHub API token when admin logs in
+        const githubToken = 'YOUR_GITHUB_TOKEN'; // Get this from environment variable
+        gitHubAPI.setToken(githubToken);
     }
 
     showAccessDenied() {

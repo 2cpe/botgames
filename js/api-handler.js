@@ -1,97 +1,85 @@
-class APIHandler {
+class GitHubAPI {
     constructor() {
-        this.baseUrl = 'https://api.github.com/repos/2cpe/botgames/contents';
-        this.branch = 'main';
-        this.token = null;
+        this.owner = '2cpe'; // Your GitHub username
+        this.repo = 'botgames'; // Your repository name
+        this.branch = 'main'; // Your branch name
+        this.token = null; // Will be set when admin logs in
     }
 
-    async initialize() {
-        const env = await EnvLoader.loadEnv();
-        this.token = env.GITHUB_TOKEN;
-        if (!this.token) {
-            throw new Error('GitHub token not found');
-        }
+    setToken(token) {
+        this.token = token;
     }
 
     async fetchProducts() {
-        if (!this.token) {
-            await this.initialize();
-        }
         try {
-            const response = await fetch(`${this.baseUrl}/db/products.json`, {
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
+            const response = await fetch(`https://raw.githubusercontent.com/${this.owner}/${this.repo}/${this.branch}/data/products.json`);
+            if (!response.ok) throw new Error('Failed to fetch products');
             const data = await response.json();
-            const content = atob(data.content);
-            return JSON.parse(content).products;
+            return data.products;
         } catch (error) {
             console.error('Error fetching products:', error);
-            return [];
+            throw error;
         }
     }
 
     async updateProducts(products) {
-        if (!this.token) {
-            await this.initialize();
-        }
+        if (!this.token) throw new Error('No authentication token');
+
         try {
-            // First, get the current file and its SHA
-            const currentFileResponse = await fetch(`${this.baseUrl}/db/products.json`, {
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json'
-                }
-            });
-
-            if (!currentFileResponse.ok) {
-                throw new Error(`Failed to fetch current file: ${currentFileResponse.status}`);
-            }
-
-            const currentFile = await currentFileResponse.json();
-
+            // First get the current file (to get the SHA)
+            const currentFile = await this.getFile('data/products.json');
+            
             // Prepare the new content
-            const newContent = {
+            const content = {
                 products: products,
                 lastUpdate: new Date().toISOString()
             };
 
-            // Convert to base64
-            const encodedContent = btoa(JSON.stringify(newContent, null, 2));
-
-            // Update the file using GitHub's API
-            const updateResponse = await fetch(`${this.baseUrl}/db/products.json`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${this.token}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: 'Update products',
-                    content: encodedContent,
-                    sha: currentFile.sha,
-                    branch: this.branch
-                })
-            });
-
-            if (!updateResponse.ok) {
-                const errorData = await updateResponse.json();
-                console.error('GitHub API Error:', errorData);
-                throw new Error(`Failed to update file: ${updateResponse.status}`);
-            }
-
-            return true;
+            // Update the file
+            await this.updateFile(
+                'data/products.json',
+                JSON.stringify(content, null, 2),
+                'Update products',
+                currentFile.sha
+            );
         } catch (error) {
             console.error('Error updating products:', error);
             throw error;
         }
     }
-} 
+
+    async getFile(path) {
+        const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`, {
+            headers: {
+                'Authorization': `token ${this.token}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
+        });
+
+        if (!response.ok) throw new Error('Failed to get file');
+        return await response.json();
+    }
+
+    async updateFile(path, content, message, sha) {
+        const response = await fetch(`https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `token ${this.token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                content: btoa(content),
+                sha: sha,
+                branch: this.branch
+            })
+        });
+
+        if (!response.ok) throw new Error('Failed to update file');
+        return await response.json();
+    }
+}
+
+// Export the API handler
+window.gitHubAPI = new GitHubAPI(); 
