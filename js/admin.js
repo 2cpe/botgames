@@ -156,16 +156,14 @@ class AdminDashboard {
 
     addProduct(productData) {
         products.push(productData);
-        saveProducts(); // Save to localStorage
-        this.showNotification('Product added successfully!', 'success');
+        // Here you would typically save to a backend
     }
 
     updateProduct(productData) {
         const index = products.findIndex(p => p.id === productData.id);
         if (index !== -1) {
             products[index] = productData;
-            saveProducts(); // Save to localStorage
-            this.showNotification('Product updated successfully!', 'success');
+            // Here you would typically save to a backend
         }
     }
 
@@ -174,9 +172,8 @@ class AdminDashboard {
             const index = products.findIndex(p => p.id === productId);
             if (index !== -1) {
                 products.splice(index, 1);
-                saveProducts(); // Save to localStorage
                 this.loadProducts();
-                this.showNotification('Product deleted successfully!', 'success');
+                // Here you would typically save to a backend
             }
         }
     }
@@ -192,8 +189,10 @@ class AdminDashboard {
         const product = products.find(p => p.id === productId);
         if (product) {
             product.price = parseFloat(newPrice);
-            saveProducts(); // Save to localStorage
-            this.loadProducts();
+            // Here you would typically save to backend
+            this.loadProducts(); // Refresh the display
+            
+            // Show success message
             this.showNotification('Price updated successfully!', 'success');
         }
     }
