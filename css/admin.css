@@ -378,4 +378,29 @@
 #logout-btn:hover {
     background: #dc2626;
     transform: translateY(-2px);
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: var(--admin-primary);
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    margin-top: 1.5rem;
+    transition: var(--transition);
+}
+
+.back-btn:hover {
+    background: var(--admin-secondary);
+    transform: translateY(-2px);
+}
+
+.auth-error {
+    color: var(--admin-danger);
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
 } 
