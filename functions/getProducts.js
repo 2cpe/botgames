@@ -26,32 +26,62 @@ exports.handler = async function(event, context) {
   }
 
   try {
-    console.log('Attempting to fetch products with Tebex key:', process.env.TEBEX_SECRET.substring(0, 4) + '...');
-    
-    const response = await fetch(`https://plugin.tebex.io/store/${process.env.TEBEX_STORE_ID}/listings`, {
+    // First, try to get the server info to verify credentials
+    const response = await fetch('https://plugin.tebex.io/information', {
       headers: {
         'X-Tebex-Secret': process.env.TEBEX_SECRET
       }
     });
-    
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`API Error: ${response.status}`);
     }
-    
-    const data = await response.json();
-    console.log('Successfully fetched products');
-    
+
+    // If credentials are valid, get the packages
+    const packagesResponse = await fetch('https://plugin.tebex.io/packages', {
+      headers: {
+        'X-Tebex-Secret': process.env.TEBEX_SECRET
+      }
+    });
+
+    if (!packagesResponse.ok) {
+      throw new Error(`Packages Error: ${packagesResponse.status}`);
+    }
+
+    const packages = await packagesResponse.json();
+
+    // Format the packages for the frontend
+    const formattedPackages = packages.map(pkg => ({
+      id: pkg.id,
+      name: pkg.name,
+      price: pkg.price,
+      image: pkg.image || './assets/images/default-product.jpg',
+      short_description: pkg.description,
+      description: pkg.description,
+      features: [
+        'Real-time statistics',
+        'Customizable UI',
+        'Easy installation',
+        'Regular updates',
+        '24/7 support'
+      ]
+    }));
+
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(formattedPackages)
     };
   } catch (error) {
-    console.error('Error in getProducts:', error.message);
+    console.error('Function error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed fetching products', details: error.message })
+      body: JSON.stringify({ 
+        error: 'Failed fetching products', 
+        details: error.message,
+        env: process.env.TEBEX_SECRET ? 'Secret key is set' : 'Secret key is missing'
+      })
     };
   }
 }; 

@@ -35,36 +35,51 @@ exports.handler = async function(event, context) {
   }
   
   try {
-    const response = await fetch(`https://plugin.tebex.io/listings/${id}`, {
+    const response = await fetch(`https://plugin.tebex.io/package/${id}`, {
       headers: {
         'X-Tebex-Secret': process.env.TEBEX_SECRET
       }
     });
     
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
     
-    // Add additional package details
-    const packageDetails = {
-      ...data,
+    const package = await response.json();
+    
+    // Format the package data
+    const formattedPackage = {
+      id: package.id,
+      name: package.name,
+      price: package.price,
+      image: package.image || './assets/images/default-product.jpg',
+      description: package.description,
+      category: 'Premium Script',
       features: [
         'Real-time statistics',
         'Customizable UI',
         'Easy installation',
         'Regular updates',
         '24/7 support'
-      ]
+      ],
+      url: package.url || `https://store.tebex.io/package/${id}`
     };
     
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(packageDetails)
+      body: JSON.stringify(formattedPackage)
     };
   } catch (error) {
+    console.error('Function error:', error);
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed fetching product details', details: error.message })
+      body: JSON.stringify({ 
+        error: 'Failed fetching product details', 
+        details: error.message,
+        env: process.env.TEBEX_SECRET ? 'Secret key is set' : 'Secret key is missing'
+      })
     };
   }
 }; 
