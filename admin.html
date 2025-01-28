@@ -29,56 +29,75 @@
 
         <!-- Admin Dashboard -->
         <div id="admin-dashboard" style="display: none;">
-            <nav class="admin-nav">
-                <div class="admin-brand">
-                    <span class="highlight">Admin</span> Dashboard
-                </div>
-                <div class="admin-user">
-                    <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="User Avatar">
-                    <span id="user-name">Loading...</span>
-                    <button id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </nav>
-
-            <div class="admin-content">
+            <div class="admin-layout">
+                <!-- Sidebar -->
                 <div class="admin-sidebar">
-                    <button class="tab-btn active" data-tab="products">
-                        <i class="fas fa-box"></i> Products
-                    </button>
-                    <button class="tab-btn" data-tab="analytics">
-                        <i class="fas fa-chart-line"></i> Analytics
-                    </button>
-                    <button class="tab-btn" data-tab="settings">
-                        <i class="fas fa-cog"></i> Settings
-                    </button>
+                    <div class="admin-brand">
+                        <img src="assets/images/logo.png" alt="Logo" class="brand-logo">
+                        <span class="brand-text">
+                            <span class="highlight">Admin</span> Panel
+                        </span>
+                    </div>
+                    
+                    <div class="admin-user">
+                        <img id="user-avatar" src="" alt="User Avatar">
+                        <div class="user-info">
+                            <span id="user-name">Loading...</span>
+                            <span class="user-role">Administrator</span>
+                        </div>
+                    </div>
+
+                    <nav class="admin-nav">
+                        <button class="tab-btn active" data-tab="products">
+                            <i class="fas fa-box"></i> Products
+                        </button>
+                        <button class="tab-btn" data-tab="analytics">
+                            <i class="fas fa-chart-line"></i> Analytics
+                        </button>
+                        <button class="tab-btn" data-tab="settings">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                        <button id="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </nav>
                 </div>
 
+                <!-- Main Content -->
                 <div class="admin-main">
-                    <!-- Products Tab -->
-                    <div class="tab-content active" id="products-tab">
-                        <div class="tab-header">
-                            <h2>Manage Products</h2>
+                    <div class="main-header">
+                        <div class="page-title">
+                            <h1>Dashboard</h1>
+                            <p class="breadcrumb">Home / Products</p>
+                        </div>
+                        <div class="header-actions">
                             <button id="add-product-btn" class="primary-btn">
                                 <i class="fas fa-plus"></i> Add Product
                             </button>
                         </div>
+                    </div>
 
-                        <div class="products-grid">
-                            <!-- Products will be rendered here -->
+                    <div class="main-content">
+                        <!-- Products Tab -->
+                        <div class="tab-content active" id="products-tab">
+                            <div class="products-grid">
+                                <!-- Products will be rendered here -->
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Other tabs -->
-                    <div class="tab-content" id="analytics-tab">
-                        <h2>Analytics</h2>
-                        <!-- Add analytics content -->
-                    </div>
+                        <!-- Analytics Tab -->
+                        <div class="tab-content" id="analytics-tab">
+                            <div class="analytics-grid">
+                                <!-- Add analytics content -->
+                            </div>
+                        </div>
 
-                    <div class="tab-content" id="settings-tab">
-                        <h2>Settings</h2>
-                        <!-- Add settings content -->
+                        <!-- Settings Tab -->
+                        <div class="tab-content" id="settings-tab">
+                            <div class="settings-grid">
+                                <!-- Add settings content -->
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

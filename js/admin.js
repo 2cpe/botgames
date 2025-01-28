@@ -51,17 +51,29 @@ class AdminDashboard {
     loadProducts() {
         try {
             const productsGrid = document.querySelector('.products-grid');
-            if (!products || !products.length) {
-                productsGrid.innerHTML = `
-                    <div class="no-products">
-                        <i class="fas fa-box-open"></i>
-                        <p>No products found. Add your first product!</p>
-                    </div>
-                `;
-                return;
-            }
             
-            productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
+            // Add loading animation
+            productsGrid.innerHTML = `
+                <div class="loading-products">
+                    <div class="loader"></div>
+                    <p>Loading products...</p>
+                </div>
+            `;
+
+            setTimeout(() => {
+                if (!products || !products.length) {
+                    productsGrid.innerHTML = `
+                        <div class="no-products">
+                            <i class="fas fa-box-open"></i>
+                            <p>No products found. Add your first product!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                productsGrid.innerHTML = products.map(product => this.renderProductCard(product)).join('');
+            }, 500); // Simulate loading for better UX
+
         } catch (error) {
             this.handleError(error, 'Failed to load products');
         }
@@ -105,7 +117,6 @@ class AdminDashboard {
         const form = document.getElementById('product-form');
 
         if (product) {
-            // Fill form with product data
             form.elements.name.value = product.name;
             form.elements.shortDescription.value = product.shortDescription;
             form.elements.fullDescription.value = product.fullDescription;
@@ -120,11 +131,19 @@ class AdminDashboard {
             delete form.dataset.productId;
         }
 
-        modal.style.display = 'block';
+        // Add active class for animation
+        requestAnimationFrame(() => {
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
+        });
     }
 
     closeProductModal() {
-        document.getElementById('product-modal').style.display = 'none';
+        const modal = document.getElementById('product-modal');
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
     }
 
     saveProduct() {
