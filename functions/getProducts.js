@@ -8,6 +8,12 @@ exports.handler = async function(event, context) {
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
   };
 
+  // Log environment check
+  console.log('Environment check:', {
+    hasSecret: !!process.env.TEBEX_SECRET,
+    secretLength: process.env.TEBEX_SECRET ? process.env.TEBEX_SECRET.length : 0
+  });
+
   // Handle OPTIONS request (preflight)
   if (event.httpMethod === 'OPTIONS') {
     return {
@@ -21,37 +27,51 @@ exports.handler = async function(event, context) {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Server configuration error' })
+      body: JSON.stringify({ 
+        error: 'Server configuration error', 
+        message: 'TEBEX_SECRET is not set'
+      })
     };
   }
 
   try {
-    // First, try to get the server info to verify credentials
-    const response = await fetch('https://plugin.tebex.io/information', {
+    console.log('Attempting to fetch server information...');
+    const infoResponse = await fetch('https://plugin.tebex.io/information', {
       headers: {
         'X-Tebex-Secret': process.env.TEBEX_SECRET
       }
     });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`);
+    const infoData = await infoResponse.json();
+    console.log('Server info response:', {
+      status: infoResponse.status,
+      ok: infoResponse.ok,
+      data: infoData
+    });
+
+    if (!infoResponse.ok) {
+      throw new Error(`API Info Error: ${infoResponse.status} - ${JSON.stringify(infoData)}`);
     }
 
-    // If credentials are valid, get the packages
+    console.log('Fetching packages...');
     const packagesResponse = await fetch('https://plugin.tebex.io/packages', {
       headers: {
         'X-Tebex-Secret': process.env.TEBEX_SECRET
       }
     });
 
+    const packagesData = await packagesResponse.json();
+    console.log('Packages response:', {
+      status: packagesResponse.status,
+      ok: packagesResponse.ok,
+      count: Array.isArray(packagesData) ? packagesData.length : 'not an array'
+    });
+
     if (!packagesResponse.ok) {
-      throw new Error(`Packages Error: ${packagesResponse.status}`);
+      throw new Error(`Packages Error: ${packagesResponse.status} - ${JSON.stringify(packagesData)}`);
     }
 
-    const packages = await packagesResponse.json();
-
-    // Format the packages for the frontend
-    const formattedPackages = packages.map(pkg => ({
+    const formattedPackages = packagesData.map(pkg => ({
       id: pkg.id,
       name: pkg.name,
       price: pkg.price,
@@ -73,7 +93,15 @@ exports.handler = async function(event, context) {
       body: JSON.stringify(formattedPackages)
     };
   } catch (error) {
-    console.error('Function error:', error);
+    console.error('Function error:', {
+      message: error.message,
+      stack: error.stack,
+      env: {
+        hasSecret: !!process.env.TEBEX_SECRET,
+        secretStart: process.env.TEBEX_SECRET ? process.env.TEBEX_SECRET.substring(0, 4) : null
+      }
+    });
+
     return {
       statusCode: 500,
       headers,
