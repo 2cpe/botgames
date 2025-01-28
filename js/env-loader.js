@@ -15,13 +15,3 @@ class EnvLoader {
         }
     }
 }
-
-// Initialize API_CONFIG with environment variables
-(async function initConfig() {
-    const env = await loadEnv();
-    window.API_CONFIG = {
-        token: env.GITHUB_TOKEN || '',
-        baseUrl: 'https://api.github.com/repos/2cpe/botgames/contents',
-        branch: 'main'
-    };
-})(); 
