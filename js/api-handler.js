@@ -22,9 +22,11 @@ class APIHandler {
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+
             const data = await response.json();
             const content = atob(data.content);
             return JSON.parse(content).products;
@@ -38,47 +40,55 @@ class APIHandler {
         try {
             if (!this.token) await this.initialize();
 
-            // Get the current file to get its SHA
-            const currentFile = await fetch(`${this.baseUrl}/db/products.json`, {
+            // First, get the current file and its SHA
+            const currentFileResponse = await fetch(`${this.baseUrl}/db/products.json`, {
                 headers: {
                     'Authorization': `token ${this.token}`,
                     'Accept': 'application/vnd.github.v3+json'
                 }
             });
-            const fileData = await currentFile.json();
 
-            // Prepare new content
+            if (!currentFileResponse.ok) {
+                throw new Error(`Failed to fetch current file: ${currentFileResponse.status}`);
+            }
+
+            const currentFile = await currentFileResponse.json();
+
+            // Prepare the new content
             const newContent = {
                 products: products,
                 lastUpdate: new Date().toISOString()
             };
 
             // Convert to base64
-            const content = btoa(JSON.stringify(newContent, null, 2));
+            const encodedContent = btoa(JSON.stringify(newContent, null, 2));
 
-            // Update file in GitHub
-            const response = await fetch(`${this.baseUrl}/db/products.json`, {
+            // Update the file using GitHub's API
+            const updateResponse = await fetch(`${this.baseUrl}/db/products.json`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${this.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
                     message: 'Update products',
-                    content: content,
-                    sha: fileData.sha,
+                    content: encodedContent,
+                    sha: currentFile.sha,
                     branch: this.branch
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to update products');
+            if (!updateResponse.ok) {
+                const errorData = await updateResponse.json();
+                console.error('GitHub API Error:', errorData);
+                throw new Error(`Failed to update file: ${updateResponse.status}`);
             }
 
             return true;
         } catch (error) {
             console.error('Error updating products:', error);
-            return false;
+            throw error; // Re-throw to handle in the calling code
         }
     }
 } 

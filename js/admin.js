@@ -162,8 +162,11 @@ class AdminDashboard {
             products.push(productData);
             await this.api.updateProducts(products);
             this.showNotification('Product added successfully!', 'success');
+            await this.loadProducts(); // Reload to show updated data
         } catch (error) {
-            this.handleError(error, 'Failed to add product');
+            console.error('Failed to add product:', error);
+            this.showNotification('Failed to add product. Please try again.', 'error');
+            await this.loadProducts(); // Reload to ensure consistency
         }
     }
 
@@ -174,9 +177,12 @@ class AdminDashboard {
                 products[index] = productData;
                 await this.api.updateProducts(products);
                 this.showNotification('Product updated successfully!', 'success');
+                await this.loadProducts(); // Reload to show updated data
             }
         } catch (error) {
-            this.handleError(error, 'Failed to update product');
+            console.error('Failed to update product:', error);
+            this.showNotification('Failed to update product. Please try again.', 'error');
+            await this.loadProducts(); // Reload to ensure consistency
         }
     }
 
