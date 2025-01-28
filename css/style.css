@@ -198,6 +198,19 @@ body {
     padding: 0 1rem;
 }
 
+.hero-tag {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: rgba(236, 72, 153, 0.1);
+    color: var(--accent-color);
+    border-radius: 100px;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(236, 72, 153, 0.2);
+    animation: fadeInUp 1s ease-out;
+}
+
 .hero-content h1 {
     font-size: 4.5rem;
     font-weight: 800;
@@ -205,7 +218,7 @@ body {
     background: var(--gradient-2);
     -webkit-background-clip: text;
     color: transparent;
-    animation: fadeInUp 1s ease-out, gradientFlow 8s ease infinite;
+    animation: fadeInUp 1s ease-out 0.2s backwards, gradientFlow 8s ease infinite;
 }
 
 @keyframes gradientFlow {
@@ -215,11 +228,60 @@ body {
 }
 
 .hero-content p {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     color: var(--text-color);
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     opacity: 0.9;
-    animation: fadeInUp 1s ease-out 0.2s backwards;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    animation: fadeInUp 1s ease-out 0.4s backwards;
+    line-height: 1.8;
+    position: relative;
+    padding: 2rem;
+}
+
+/* Add highlight effect for key words */
+.hero-content p span {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* Add subtle animated border */
+.hero-content p::before,
+.hero-content p::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    opacity: 0.5;
+}
+
+.hero-content p::before {
+    top: 0;
+    left: 0;
+    border-top: 2px solid var(--accent-color);
+    border-left: 2px solid var(--accent-color);
+    animation: borderAnimation 3s ease-in-out infinite;
+}
+
+.hero-content p::after {
+    bottom: 0;
+    right: 0;
+    border-bottom: 2px solid var(--primary-color);
+    border-right: 2px solid var(--primary-color);
+    animation: borderAnimation 3s ease-in-out infinite reverse;
+}
+
+@keyframes borderAnimation {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
 }
 
 .cta-button {
@@ -273,156 +335,144 @@ body {
     overflow: hidden;
 }
 
-.about::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    background: 
-        radial-gradient(circle at 0% 0%, rgba(109, 40, 217, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-    pointer-events: none;
+.about-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.about h2 {
-    font-size: 2.5rem;
-    margin-bottom: 4rem;
+.section-header {
     text-align: center;
-    color: var(--primary-color);
-    position: relative;
+    margin-bottom: 4rem;
 }
 
-.about-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: start;
-}
-
-.about-header {
-    margin-bottom: 2rem;
-}
-
-.tag {
+.section-tag {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    background: rgba(109, 40, 217, 0.1);
-    color: var(--primary-color);
+    padding: 0.6rem 1.5rem;
+    background: rgba(236, 72, 153, 0.1);
+    color: var(--accent-color);
     border-radius: 100px;
     font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     margin-bottom: 1rem;
 }
 
-.about-header h3 {
-    font-size: 2rem;
+.section-header h2 {
+    font-size: 3rem;
     color: var(--text-color);
     margin-bottom: 1rem;
 }
 
-.about-text p {
-    font-size: 1.1rem;
+.about-text-wrapper {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 24px;
+    padding: 3rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.about-text {
+    margin-bottom: 4rem;
+}
+
+.about-text h3 {
+    font-size: 1.8rem;
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+}
+
+.highlight-text {
+    font-size: 1.2rem;
     line-height: 1.8;
     color: var(--text-color);
     opacity: 0.9;
-    margin-bottom: 0;
+    max-width: 800px;
 }
 
-/* Skills Container */
-.skills-container {
-    background: var(--glass-bg);
-    border-radius: 20px;
-    padding: 2.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    height: 100%;
+.highlight-text .accent {
+    color: var(--accent-color);
+    font-weight: 600;
 }
 
-.skills h3 {
-    color: var(--text-color);
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
-    text-align: center;
-}
-
-.skills-grid {
+.expertise-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    gap: 2rem;
+    margin-bottom: 3rem;
 }
 
-.skill-card {
-    background: rgba(255, 255, 255, 0.03);
+.expertise-card {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
     padding: 1.5rem;
-    border-radius: 15px;
-    text-align: center;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
     transition: var(--transition);
 }
 
-.skill-card:hover {
+.expertise-card:hover {
     transform: translateY(-5px);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.skill-card i {
-    font-size: 2rem;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-}
-
-.skill-card h4 {
+.expertise-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gradient-1);
+    border-radius: 12px;
+    font-size: 1.5rem;
     color: var(--text-color);
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
 }
 
-.skill-level {
+.expertise-info {
+    flex: 1;
+}
+
+.expertise-info h4 {
+    color: var(--text-color);
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+}
+
+.expertise-bar {
     height: 4px;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 100px;
     overflow: hidden;
 }
 
-.skill-progress {
+.expertise-progress {
     height: 100%;
-    background: var(--gradient-1);
+    background: var(--gradient-2);
     border-radius: 100px;
     transition: width 1.5s ease-in-out;
 }
 
-.additional-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-}
-
-.additional-skills span {
-    padding: 0.5rem 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 100px;
-    font-size: 0.9rem;
-    color: var(--text-color);
-    transition: var(--transition);
-}
-
-.additional-skills span:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-    .about-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
+    .section-header h2 {
+        font-size: 2rem;
     }
 
-    .skills-grid {
+    .about-text-wrapper {
+        padding: 1.5rem;
+    }
+
+    .expertise-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .highlight-text {
+        font-size: 1.1rem;
+    }
+
+    .expertise-card {
+        padding: 1rem;
     }
 }
 
@@ -438,16 +488,18 @@ footer {
     margin-bottom: 1.5rem;
 }
 
-.social-links a {
+.social-links .discord-link {
     color: var(--text-color);
-    font-size: 1.5rem;
-    margin: 0 1rem;
+    font-size: 2rem;
+    padding: 0.5rem;
     transition: var(--transition);
+    display: inline-block;
 }
 
-.social-links a:hover {
-    color: var(--primary-color);
-    transform: translateY(-3px);
+.social-links .discord-link:hover {
+    color: #5865F2; /* Discord brand color */
+    transform: translateY(-3px) scale(1.1);
+    filter: drop-shadow(0 0 10px rgba(88, 101, 242, 0.4));
 }
 
 /* Animations */
@@ -520,18 +572,6 @@ footer {
     .nav-link {
         font-size: 1.2rem;
         padding: 1rem 2rem;
-    }
-
-    .hero-content h1 {
-        font-size: 2.5rem;
-    }
-    
-    .about-content {
-        grid-template-columns: 1fr;
-    }
-    
-    .skills ul {
-        grid-template-columns: 1fr;
     }
 }
 
