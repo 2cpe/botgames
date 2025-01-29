@@ -3,6 +3,9 @@ const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
 let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
 
+// Create Supabase client
+const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
 function initializeAdmin() {
     renderProductsList();
     saveProductsToStorage();
@@ -44,7 +47,7 @@ function editProduct(id) {
 }
 
 class ProductManager {
-    static supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    static supabase = supabase;
 
     static async checkAuth() {
         const { data: { session } } = await this.supabase.auth.getSession();

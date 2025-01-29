@@ -55,44 +55,46 @@ class DiscordAuth {
                 return;
             }
 
-            // Get user's guilds and member data
-            const user = await this.fetchDiscordUser(token);
-            const hasRole = await this.checkUserRole(token, user.id);
+            try {
+                // Get user's guilds and member data
+                const user = await this.fetchDiscordUser(token);
+                const hasRole = await this.checkUserRole(token, user.id);
 
-            if (!hasRole) {
-                this.handleUnauthorized();
-                return;
-            }
-
-            // Sign in to Supabase with Discord
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'discord',
-                options: {
-                    redirectTo: REDIRECT_URI,
-                    queryParams: {
-                        prompt: 'none' // Skip prompt if already authorized
-                    }
+                if (!hasRole) {
+                    this.handleUnauthorized();
+                    return;
                 }
-            });
 
-            if (error) throw error;
+                // Sign in to Supabase with Discord
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'discord',
+                    options: {
+                        redirectTo: REDIRECT_URI,
+                        queryParams: {
+                            prompt: 'none' // Skip prompt if already authorized
+                        }
+                    }
+                });
 
-            // Check if we have a valid Supabase session
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                throw new Error('No Supabase session');
+                if (error) {
+                    console.error('Supabase auth error:', error);
+                    throw error;
+                }
+
+                // Show admin content
+                const adminContainer = document.querySelector('.admin-container');
+                if (adminContainer) {
+                    adminContainer.style.display = 'grid';
+                }
+                const loadingMessage = document.getElementById('loadingMessage');
+                if (loadingMessage) {
+                    loadingMessage.remove();
+                }
+
+            } catch (error) {
+                console.error('Validation error:', error);
+                this.handleUnauthorized();
             }
-
-            // User is authorized, show admin content
-            const adminContainer = document.querySelector('.admin-container');
-            if (adminContainer) {
-                adminContainer.style.display = 'grid';
-            }
-            const loadingMessage = document.getElementById('loadingMessage');
-            if (loadingMessage) {
-                loadingMessage.remove();
-            }
-
         } catch (error) {
             console.error('Auth error:', error);
             this.handleUnauthorized();
@@ -111,16 +113,28 @@ class DiscordAuth {
     }
 
     static async checkUserRole(token, userId) {
-        const response = await fetch(`https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        try {
+            const response = await fetch(`https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
-        if (!response.ok) throw new Error('Failed to fetch member data');
-        const memberData = await response.json();
-        
-        return memberData.roles.includes(REQUIRED_ROLE_ID);
+            if (response.status === 429) {
+                // Handle rate limiting
+                const retryAfter = response.headers.get('Retry-After') || 5;
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                return this.checkUserRole(token, userId); // Retry after waiting
+            }
+
+            if (!response.ok) throw new Error('Failed to fetch member data');
+            const memberData = await response.json();
+            
+            return memberData.roles.includes(REQUIRED_ROLE_ID);
+        } catch (error) {
+            console.error('Error checking user role:', error);
+            throw error;
+        }
     }
 
     static handleUnauthorized() {
