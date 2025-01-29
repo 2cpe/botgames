@@ -64,6 +64,25 @@ class DiscordAuth {
                 return;
             }
 
+            // Sign in to Supabase with Discord
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'discord',
+                options: {
+                    redirectTo: REDIRECT_URI,
+                    queryParams: {
+                        prompt: 'none' // Skip prompt if already authorized
+                    }
+                }
+            });
+
+            if (error) throw error;
+
+            // Check if we have a valid Supabase session
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                throw new Error('No Supabase session');
+            }
+
             // User is authorized, show admin content
             const adminContainer = document.querySelector('.admin-container');
             if (adminContainer) {

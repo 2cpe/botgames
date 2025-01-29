@@ -46,25 +46,41 @@ function editProduct(id) {
 class ProductManager {
     static supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    static async checkAuth() {
+        const { data: { session } } = await this.supabase.auth.getSession();
+        if (!session) {
+            throw new Error('Not authenticated');
+        }
+        return session;
+    }
+
     static async saveProducts(products) {
         try {
+            await this.checkAuth();
+
             // First, delete all existing products
-            await this.supabase
+            const { error: deleteError } = await this.supabase
                 .from('products')
                 .delete()
-                .neq('id', 0); // Delete all records
+                .neq('id', 0);
+
+            if (deleteError) throw deleteError;
 
             // Then insert new products
-            const { data, error } = await this.supabase
+            const { error: insertError } = await this.supabase
                 .from('products')
                 .insert(products);
 
-            if (error) throw error;
+            if (insertError) throw insertError;
 
             localStorage.setItem('products', JSON.stringify(products));
             return true;
         } catch (error) {
             console.error('Error saving products:', error);
+            if (error.message === 'Not authenticated') {
+                // Redirect to login if not authenticated
+                DiscordAuth.redirectToDiscordLogin();
+            }
             return false;
         }
     }
@@ -83,11 +99,10 @@ class ProductManager {
                 return data;
             }
             
-            // If no data in Supabase, use default products
-            return products;
+            return products; // Fallback to default products
         } catch (error) {
             console.error('Error fetching products:', error);
-            return products; // Fallback to default products
+            return products;
         }
     }
 }
