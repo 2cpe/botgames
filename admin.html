@@ -3,145 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - FiveM Scripts</title>
+    <title>Admin Panel - FiveM Scripts</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/admin.css">
+    <style>
+        .admin-container { display: none; }
+        #loadingMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .unauthorized-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .unauthorized-message button {
+            background: #5865F2;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 1rem 0;
+            font-weight: 600;
+        }
+        .unauthorized-message a {
+            display: block;
+            color: var(--text-color);
+            text-decoration: none;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body>
-    <div id="admin-container">
-        <!-- Loading State -->
-        <div id="loading-screen">
-            <div class="loader"></div>
-            <p>Verifying credentials...</p>
-        </div>
+    <div id="loadingMessage">
+        <h2>Verifying access...</h2>
+        <p>Please wait while we check your permissions.</p>
+    </div>
 
-        <!-- Access Denied State -->
-        <div id="access-denied" style="display: none;">
-            <div class="denied-content">
-                <i class="fas fa-lock"></i>
-                <h2>Access Denied</h2>
-                <p>You don't have permission to access this area.</p>
-                <a href="index.html" class="back-btn">Back to Home</a>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="highlight">TEST</span>ING
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="store.html" class="nav-link">
+                <i class="fas fa-store"></i>
+                <span>Store</span>
+            </a>
+            <a href="admin.html" class="nav-link active">
+                <i class="fas fa-cog"></i>
+                <span>Admin</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <button class="add-product-btn" onclick="showAddProductForm()">
+                <i class="fas fa-plus"></i> Add New Product
+            </button>
+            <div class="products-list" id="productsList">
+                <!-- Products will be listed here -->
             </div>
         </div>
 
-        <!-- Admin Dashboard -->
-        <div id="admin-dashboard" style="display: none;">
-            <nav class="admin-nav">
-                <div class="admin-brand">
-                    <span class="highlight">Admin</span> Dashboard
-                </div>
-                <div class="admin-user">
-                    <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="User Avatar">
-                    <span id="user-name">Loading...</span>
-                    <button id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </nav>
-
-            <div class="admin-content">
-                <div class="admin-sidebar">
-                    <button class="tab-btn active" data-tab="products">
-                        <i class="fas fa-box"></i> Products
-                    </button>
-                    <button class="tab-btn" data-tab="analytics">
-                        <i class="fas fa-chart-line"></i> Analytics
-                    </button>
-                    <button class="tab-btn" data-tab="settings">
-                        <i class="fas fa-cog"></i> Settings
-                    </button>
-                </div>
-
-                <div class="admin-main">
-                    <!-- Products Tab -->
-                    <div class="tab-content active" id="products-tab">
-                        <div class="tab-header">
-                            <h2>Manage Products</h2>
-                            <button id="add-product-btn" class="primary-btn">
-                                <i class="fas fa-plus"></i> Add Product
-                            </button>
-                        </div>
-
-                        <div class="products-grid">
-                            <!-- Products will be rendered here -->
-                        </div>
-                    </div>
-
-                    <!-- Other tabs -->
-                    <div class="tab-content" id="analytics-tab">
-                        <h2>Analytics</h2>
-                        <!-- Add analytics content -->
-                    </div>
-
-                    <div class="tab-content" id="settings-tab">
-                        <h2>Settings</h2>
-                        <!-- Add settings content -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Editor Modal -->
-        <div id="product-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2>Edit Product</h2>
-                    <button class="close-modal">&times;</button>
-                </div>
-                <form id="product-form">
+        <div class="admin-content">
+            <div id="productForm" class="product-form">
+                <h2 id="formTitle">Add New Product</h2>
+                <form id="adminProductForm" onsubmit="handleProductSubmit(event)">
+                    <input type="hidden" id="productId">
+                    
                     <div class="form-group">
-                        <label>Name</label>
-                        <input type="text" name="name" required>
+                        <label>Product Name</label>
+                        <input type="text" id="name" required>
                     </div>
+
                     <div class="form-group">
                         <label>Short Description</label>
-                        <input type="text" name="shortDescription" required>
+                        <input type="text" id="shortDescription" required>
                     </div>
+
                     <div class="form-group">
                         <label>Full Description</label>
-                        <textarea name="fullDescription" required rows="4"></textarea>
+                        <textarea id="fullDescription" required></textarea>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Price</label>
-                            <input type="number" name="price" step="0.01" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Badge</label>
-                            <select name="badge">
-                                <option value="">None</option>
-                                <option value="Featured">Featured</option>
-                                <option value="New">New</option>
-                                <option value="Sale">Sale</option>
-                            </select>
-                        </div>
+
+                    <div class="form-group">
+                        <label>Price ($)</label>
+                        <input type="number" id="price" step="0.01" required>
                     </div>
+
+                    <div class="form-group">
+                        <label>Badge (Optional)</label>
+                        <input type="text" id="badge" placeholder="e.g., Featured, New">
+                    </div>
+
                     <div class="form-group">
                         <label>Category</label>
-                        <select name="category" required>
-                            <option value="UI Script">UI Script</option>
-                            <option value="Premium Script">Premium Script</option>
-                            <option value="System Script">System Script</option>
-                        </select>
+                        <input type="text" id="category" required>
                     </div>
-                    <div class="form-group">
-                        <label>Features (one per line)</label>
-                        <textarea name="features" required rows="4"></textarea>
-                    </div>
+
                     <div class="form-group">
                         <label>Images (URLs, one per line)</label>
-                        <textarea name="images" required rows="3"></textarea>
+                        <textarea id="images" required placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg"></textarea>
                     </div>
+
+                    <div class="form-group">
+                        <label>Features (one per line)</label>
+                        <textarea id="features" required placeholder="Feature 1&#10;Feature 2&#10;Feature 3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Technical Details</label>
+                        <input type="text" id="version" placeholder="Version" required>
+                        <input type="text" id="lastUpdated" placeholder="Last Updated" required>
+                        <input type="text" id="framework" placeholder="Framework" required>
+                        <input type="text" id="filesIncluded" placeholder="Files Included" required>
+                    </div>
+
                     <div class="form-actions">
-                        <button type="submit" class="save-btn">
-                            <i class="fas fa-save"></i> Save Changes
-                        </button>
-                        <button type="button" class="delete-btn" data-action="delete">
-                            <i class="fas fa-trash"></i> Delete Product
-                        </button>
+                        <button type="submit" class="save-btn">Save Product</button>
+                        <button type="button" class="cancel-btn" onclick="clearForm()">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -149,7 +147,7 @@
     </div>
 
     <script src="./js/products-data.js"></script>
-    <script src="./js/admin-auth.js"></script>
     <script src="./js/admin.js"></script>
+    <script src="./js/discord-auth.js"></script>
 </body>
 </html> 
