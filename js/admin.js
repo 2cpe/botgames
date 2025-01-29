@@ -1,3 +1,6 @@
+const SUPABASE_URL = CONFIG.SUPABASE_URL;
+const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
+
 let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
 
 function initializeAdmin() {
@@ -40,7 +43,56 @@ function editProduct(id) {
     document.getElementById('filesIncluded').value = product.technicalDetails.filesIncluded;
 }
 
-function handleProductSubmit(event) {
+class ProductManager {
+    static supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    static async saveProducts(products) {
+        try {
+            // First, delete all existing products
+            await this.supabase
+                .from('products')
+                .delete()
+                .neq('id', 0); // Delete all records
+
+            // Then insert new products
+            const { data, error } = await this.supabase
+                .from('products')
+                .insert(products);
+
+            if (error) throw error;
+
+            localStorage.setItem('products', JSON.stringify(products));
+            return true;
+        } catch (error) {
+            console.error('Error saving products:', error);
+            return false;
+        }
+    }
+
+    static async getProducts() {
+        try {
+            const { data, error } = await this.supabase
+                .from('products')
+                .select('*')
+                .order('id');
+
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                localStorage.setItem('products', JSON.stringify(data));
+                return data;
+            }
+            
+            // If no data in Supabase, use default products
+            return products;
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            return products; // Fallback to default products
+        }
+    }
+}
+
+async function handleProductSubmit(event) {
     event.preventDefault();
 
     const productId = document.getElementById('productId').value;
@@ -71,10 +123,16 @@ function handleProductSubmit(event) {
         currentProducts.push(newProduct);
     }
 
-    saveProductsToStorage();
-    renderProductsList();
-    clearForm();
-    alert('Product saved successfully!');
+    // Save to GitHub
+    const saved = await ProductManager.saveProducts(currentProducts);
+    
+    if (saved) {
+        renderProductsList();
+        clearForm();
+        alert('Product saved successfully!');
+    } else {
+        alert('Failed to save product. Please try again.');
+    }
 }
 
 function clearForm() {
