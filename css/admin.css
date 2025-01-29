@@ -1,3 +1,23 @@
+body {
+    min-height: 100vh;
+    background: var(--darker-bg);
+}
+
+#loadingMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 2rem;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+}
+
 .admin-container {
     padding-top: 120px;
     display: grid;
@@ -134,10 +154,22 @@
     color: rgba(255, 255, 255, 0.4);
 }
 
+/* Add these new styles for better form visibility */
+.form-group input:not([type="hidden"]) {
+    height: 45px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
 .form-group textarea {
-    min-height: 120px;
-    resize: vertical;
-    line-height: 1.6;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Make sure text is visible */
+.form-group input,
+.form-group textarea,
+.form-group label {
+    color: var(--text-color);
 }
 
 .form-actions {
@@ -186,16 +218,6 @@
 }
 
 /* Loading and Unauthorized Messages */
-#loadingMessage {
-    text-align: center;
-    padding: 2rem;
-    color: var(--text-color);
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
 #loadingMessage h2 {
     font-size: 1.8rem;
     margin-bottom: 1rem;

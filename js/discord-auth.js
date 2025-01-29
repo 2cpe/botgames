@@ -8,6 +8,12 @@ class DiscordAuth {
         // Check if we're on the admin page
         if (!window.location.pathname.includes('admin.html')) return;
 
+        // Hide admin container initially
+        const adminContainer = document.querySelector('.admin-container');
+        if (adminContainer) {
+            adminContainer.style.display = 'none';
+        }
+
         // Check if we have a token
         const token = localStorage.getItem('discord_token');
         if (!token) {
@@ -59,8 +65,14 @@ class DiscordAuth {
             }
 
             // User is authorized, show admin content
-            document.querySelector('.admin-container').style.display = 'grid';
-            document.getElementById('loadingMessage')?.remove();
+            const adminContainer = document.querySelector('.admin-container');
+            if (adminContainer) {
+                adminContainer.style.display = 'grid';
+            }
+            const loadingMessage = document.getElementById('loadingMessage');
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
 
         } catch (error) {
             console.error('Auth error:', error);
