@@ -1,22 +1,28 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     const storeGrid = document.querySelector('.store-grid');
     
     try {
-        // Update store name if needed
-        document.title = storeConfig.store.name;
+        // Updated path to config.json
+        const response = await fetch('./config.json');
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
+        
+        const data = await response.json();
+        const products = data.products;
         
         // Render all products
-        storeGrid.innerHTML = storeConfig.products.map(product => 
+        storeGrid.innerHTML = products.map(product => 
             ProductRenderer.renderProductCard(product)
         ).join('');
         
-        // Update Discord links
-        const discordLinks = document.querySelectorAll('.discord-link');
-        discordLinks.forEach(link => {
-            link.href = storeConfig.store.discordInvite;
-        });
     } catch (error) {
         console.error('Error loading products:', error);
-        storeGrid.innerHTML = `<p class="error-message">Error loading products. Please try again later.<br>Error: ${error.message}</p>`;
+        storeGrid.innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Failed to load products. Please try again later.</p>
+            </div>
+        `;
     }
 }); 

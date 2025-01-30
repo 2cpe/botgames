@@ -47,7 +47,28 @@
 
     <!-- Store Grid -->
     <section class="store-grid">
-        <!-- Products will be loaded dynamically -->
+        <!-- Product Card -->
+        <div class="product-card" onclick="window.location.href='product.html'">
+            <div class="product-image">
+                <img src="assets/images/product1.jpg" alt="UI Dashboard">
+                <div class="product-badge">Featured</div>
+            </div>
+            <div class="product-content">
+                <h3>Modern UI Dashboard</h3>
+                <p>A sleek and intuitive dashboard interface with real-time statistics.</p>
+                <div class="product-features">
+                    <span><i class="fas fa-check"></i> Customizable</span>
+                    <span><i class="fas fa-check"></i> Real-time Updates</span>
+                    <span><i class="fas fa-check"></i> Easy Installation</span>
+                </div>
+                <div class="product-price">
+                    <span class="price">$24.99</span>
+                    <a href="product.html" class="buy-btn">View Details</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add more product cards as needed -->
     </section>
 
     <!-- Footer -->
@@ -59,7 +80,6 @@
     </footer>
 
     <script src="./js/main.js"></script>
-    <script src="./js/products.js"></script>
     <script src="./js/product-renderer.js"></script>
     <script src="./js/store.js"></script>
 </body>

@@ -1,16 +1,19 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    // Get product ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+    
     try {
-        // Get product ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const productId = parseInt(urlParams.get('id'));
+        // Updated path to config.json
+        const response = await fetch('./config.json');
+        if (!response.ok) {
+            throw new Error('Failed to fetch products');
+        }
         
-        // Find the product
-        const product = storeConfig.products.find(p => p.id === productId);
+        const data = await response.json();
+        const product = data.products.find(p => p.id === productId);
         
         if (product) {
-            // Update page title
-            document.title = `${product.name} - ${storeConfig.store.name}`;
-            
             // Render product details
             const productDetail = document.querySelector('.product-detail');
             productDetail.innerHTML = ProductRenderer.renderProductDetail(product);
@@ -31,20 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     this.classList.add('active');
                 });
             });
-
-            // Update Discord links
-            const discordLinks = document.querySelectorAll('.discord-link, .buy-now-btn');
-            discordLinks.forEach(link => {
-                link.href = storeConfig.store.discordInvite;
-            });
         } else {
             // Handle product not found
             window.location.href = 'store.html';
         }
     } catch (error) {
         console.error('Error loading product:', error);
-        document.querySelector('.product-detail').innerHTML = 
-            '<p class="error-message">Error loading product details. Please try again later.</p>';
+        document.querySelector('.product-detail').innerHTML = `
+            <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                <p>Failed to load product details. Please try again later.</p>
+            </div>
+        `;
     }
 
     // Add smooth scroll for navigation

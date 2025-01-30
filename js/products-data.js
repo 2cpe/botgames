@@ -1,10 +1,10 @@
 const products = [
     {
         id: 1,
-        name: "dwadwafreger",
+        name: "Modern UI Dashboard",
         shortDescription: "A sleek and intuitive dashboard interface with real-time statistics.",
         fullDescription: "A sleek and intuitive dashboard interface with real-time statistics. Perfect for modern FiveM servers looking to provide their players with a seamless experience.",
-        price: 1.99,
+        price: 24.99,
         badge: "Featured",
         category: "Premium Script",
         images: [
