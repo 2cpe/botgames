@@ -1,19 +1,15 @@
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', function() {
     try {
         // Get product ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const productId = parseInt(urlParams.get('id'));
         
-        // Fetch the config file
-        const response = await fetch('./js/config.json');
-        const config = await response.json();
-        
         // Find the product
-        const product = config.products.find(p => p.id === productId);
+        const product = storeConfig.products.find(p => p.id === productId);
         
         if (product) {
             // Update page title
-            document.title = `${product.name} - ${config.store.name}`;
+            document.title = `${product.name} - ${storeConfig.store.name}`;
             
             // Render product details
             const productDetail = document.querySelector('.product-detail');
@@ -39,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Update Discord links
             const discordLinks = document.querySelectorAll('.discord-link, .buy-now-btn');
             discordLinks.forEach(link => {
-                link.href = config.store.discordInvite;
+                link.href = storeConfig.store.discordInvite;
             });
         } else {
             // Handle product not found
