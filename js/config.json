@@ -7,7 +7,7 @@
   "products": [
     {
       "id": 1,
-      "name": "test",
+      "name": "Modern UI Dashboard",
       "shortDescription": "A sleek and intuitive dashboard interface with real-time statistics.",
       "fullDescription": "A sleek and intuitive dashboard interface with real-time statistics. Perfect for modern FiveM servers looking to provide their players with a seamless experience.",
       "price": 24.99,
