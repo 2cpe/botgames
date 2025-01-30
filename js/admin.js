@@ -1,9 +1,6 @@
 // Load environment variables
 require('dotenv').config();
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
-
 let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
 
 function initializeAdmin() {
@@ -49,7 +46,7 @@ function editProduct(id) {
 class ProductManager {
     static async getToken() {
         try {
-            const img = document.getElementById('tokenImage'); // Hidden image element
+            const img = document.getElementById('tokenImage');
             if (!img) return null;
             
             const token = await SteganographyUtil.extractToken(img);
@@ -90,7 +87,7 @@ class ProductManager {
                 },
                 body: JSON.stringify({
                     message: 'Update products data',
-                    content: btoa(content), // Convert content to base64
+                    content: btoa(content),
                     sha: currentFile.sha
                 })
             });
@@ -99,7 +96,6 @@ class ProductManager {
                 throw new Error('Failed to save products');
             }
 
-            // Update local storage for immediate effect
             localStorage.setItem('products', JSON.stringify(products));
             return true;
         } catch (error) {
@@ -110,7 +106,6 @@ class ProductManager {
 
     static async getProducts() {
         try {
-            // First try to get from GitHub
             const response = await fetch('https://raw.githubusercontent.com/2cpe/botgames/main/data/products.json');
             
             if (!response.ok) {
@@ -122,7 +117,6 @@ class ProductManager {
             return products;
         } catch (error) {
             console.error('Error fetching products:', error);
-            // Fall back to local storage or default products
             return JSON.parse(localStorage.getItem('products')) || products;
         }
     }
