@@ -1,8 +1,6 @@
 const SUPABASE_URL = CONFIG.SUPABASE_URL;
 const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
-let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
-
 async function initializeAdmin() {
     try {
         // Get products from Supabase
@@ -49,10 +47,8 @@ function editProduct(id) {
 }
 
 class ProductManager {
-    static supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
     static async checkAuth() {
-        const { data: { session } } = await this.supabase.auth.getSession();
+        const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
             throw new Error('Not authenticated');
         }
@@ -65,7 +61,7 @@ class ProductManager {
             console.log('Saving products:', products);
 
             // First, delete all existing products
-            const { error: deleteError } = await this.supabase
+            const { error: deleteError } = await supabase
                 .from('products')
                 .delete()
                 .neq('id', 0);
@@ -76,7 +72,7 @@ class ProductManager {
             }
 
             // Then insert new products
-            const { data, error: insertError } = await this.supabase
+            const { data, error: insertError } = await supabase
                 .from('products')
                 .insert(products)
                 .select();
@@ -102,7 +98,7 @@ class ProductManager {
     static async getProducts() {
         try {
             console.log('Fetching products...');
-            const { data, error } = await this.supabase
+            const { data, error } = await supabase
                 .from('products')
                 .select('*')
                 .order('id');
