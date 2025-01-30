@@ -3,12 +3,14 @@ const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
 
 let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
 
-// Create Supabase client
-const supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
-
-function initializeAdmin() {
-    renderProductsList();
-    saveProductsToStorage();
+async function initializeAdmin() {
+    try {
+        // Get products from Supabase
+        currentProducts = await ProductManager.getProducts();
+        renderProductsList();
+    } catch (error) {
+        console.error('Error initializing admin:', error);
+    }
 }
 
 function renderProductsList() {
@@ -47,7 +49,7 @@ function editProduct(id) {
 }
 
 class ProductManager {
-    static supabase = supabase;
+    static supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     static async checkAuth() {
         const { data: { session } } = await this.supabase.auth.getSession();
@@ -60,6 +62,7 @@ class ProductManager {
     static async saveProducts(products) {
         try {
             await this.checkAuth();
+            console.log('Saving products:', products);
 
             // First, delete all existing products
             const { error: deleteError } = await this.supabase
@@ -67,15 +70,23 @@ class ProductManager {
                 .delete()
                 .neq('id', 0);
 
-            if (deleteError) throw deleteError;
+            if (deleteError) {
+                console.error('Delete error:', deleteError);
+                throw deleteError;
+            }
 
             // Then insert new products
-            const { error: insertError } = await this.supabase
+            const { data, error: insertError } = await this.supabase
                 .from('products')
-                .insert(products);
+                .insert(products)
+                .select();
 
-            if (insertError) throw insertError;
+            if (insertError) {
+                console.error('Insert error:', insertError);
+                throw insertError;
+            }
 
+            console.log('Saved products:', data);
             localStorage.setItem('products', JSON.stringify(products));
             return true;
         } catch (error) {
@@ -84,19 +95,24 @@ class ProductManager {
                 // Redirect to login if not authenticated
                 DiscordAuth.redirectToDiscordLogin();
             }
-            return false;
+            throw error;
         }
     }
 
     static async getProducts() {
         try {
+            console.log('Fetching products...');
             const { data, error } = await this.supabase
                 .from('products')
                 .select('*')
                 .order('id');
 
-            if (error) throw error;
+            if (error) {
+                console.error('Fetch error:', error);
+                throw error;
+            }
 
+            console.log('Fetched products:', data);
             if (data && data.length > 0) {
                 localStorage.setItem('products', JSON.stringify(data));
                 return data;
@@ -112,6 +128,7 @@ class ProductManager {
 
 async function handleProductSubmit(event) {
     event.preventDefault();
+    console.log('Submitting product form...');
 
     const productId = document.getElementById('productId').value;
     const newProduct = {
@@ -132,6 +149,8 @@ async function handleProductSubmit(event) {
         }
     };
 
+    console.log('New product:', newProduct);
+
     if (productId) {
         // Update existing product
         const index = currentProducts.findIndex(p => p.id === parseInt(productId));
@@ -141,15 +160,23 @@ async function handleProductSubmit(event) {
         currentProducts.push(newProduct);
     }
 
-    // Save to GitHub
-    const saved = await ProductManager.saveProducts(currentProducts);
-    
-    if (saved) {
-        renderProductsList();
-        clearForm();
-        alert('Product saved successfully!');
-    } else {
-        alert('Failed to save product. Please try again.');
+    try {
+        // Save to Supabase
+        const saved = await ProductManager.saveProducts(currentProducts);
+        console.log('Save result:', saved);
+        
+        if (saved) {
+            // Refresh the products list
+            currentProducts = await ProductManager.getProducts();
+            renderProductsList();
+            clearForm();
+            alert('Product saved successfully!');
+        } else {
+            alert('Failed to save product. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error saving product:', error);
+        alert('Error saving product: ' + error.message);
     }
 }
 
@@ -163,5 +190,7 @@ function saveProductsToStorage() {
     localStorage.setItem('products', JSON.stringify(currentProducts));
 }
 
-// Initialize admin panel
-document.addEventListener('DOMContentLoaded', initializeAdmin); 
+// Update the event listener to handle async
+document.addEventListener('DOMContentLoaded', () => {
+    initializeAdmin();
+}); 
