@@ -1,14 +1,14 @@
-const SUPABASE_URL = CONFIG.SUPABASE_URL;
-const SUPABASE_KEY = CONFIG.SUPABASE_KEY;
+// Load environment variables
+require('dotenv').config();
 
-async function initializeAdmin() {
-    try {
-        // Get products from Supabase
-        currentProducts = await ProductManager.getProducts();
-        renderProductsList();
-    } catch (error) {
-        console.error('Error initializing admin:', error);
-    }
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let currentProducts = JSON.parse(localStorage.getItem('products')) || products;
+
+function initializeAdmin() {
+    renderProductsList();
+    saveProductsToStorage();
 }
 
 function renderProductsList() {
@@ -47,84 +47,89 @@ function editProduct(id) {
 }
 
 class ProductManager {
-    static async checkAuth() {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-            throw new Error('Not authenticated');
+    static async getToken() {
+        try {
+            const img = document.getElementById('tokenImage'); // Hidden image element
+            if (!img) return null;
+            
+            const token = await SteganographyUtil.extractToken(img);
+            return token;
+        } catch (error) {
+            console.error('Error extracting token:', error);
+            return null;
         }
-        return session;
     }
 
     static async saveProducts(products) {
         try {
-            await this.checkAuth();
-            console.log('Saving products:', products);
+            const token = await this.getToken();
+            if (!token) {
+                throw new Error('Could not retrieve token');
+            }
+            
+            const owner = '2cpe';
+            const repo = 'botgames';
+            const path = 'data/products.json';
 
-            // First, delete all existing products
-            const { error: deleteError } = await supabase
-                .from('products')
-                .delete()
-                .neq('id', 0);
+            // Get current file SHA (needed for updating)
+            const currentFile = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                headers: {
+                    'Authorization': `token ${token}`,
+                }
+            }).then(res => res.json());
 
-            if (deleteError) {
-                console.error('Delete error:', deleteError);
-                throw deleteError;
+            // Prepare the content
+            const content = JSON.stringify(products, null, 2);
+
+            // Update file in GitHub
+            const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: 'Update products data',
+                    content: btoa(content), // Convert content to base64
+                    sha: currentFile.sha
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save products');
             }
 
-            // Then insert new products
-            const { data, error: insertError } = await supabase
-                .from('products')
-                .insert(products)
-                .select();
-
-            if (insertError) {
-                console.error('Insert error:', insertError);
-                throw insertError;
-            }
-
-            console.log('Saved products:', data);
+            // Update local storage for immediate effect
             localStorage.setItem('products', JSON.stringify(products));
             return true;
         } catch (error) {
             console.error('Error saving products:', error);
-            if (error.message === 'Not authenticated') {
-                // Redirect to login if not authenticated
-                DiscordAuth.redirectToDiscordLogin();
-            }
-            throw error;
+            return false;
         }
     }
 
     static async getProducts() {
         try {
-            console.log('Fetching products...');
-            const { data, error } = await supabase
-                .from('products')
-                .select('*')
-                .order('id');
-
-            if (error) {
-                console.error('Fetch error:', error);
-                throw error;
-            }
-
-            console.log('Fetched products:', data);
-            if (data && data.length > 0) {
-                localStorage.setItem('products', JSON.stringify(data));
-                return data;
-            }
+            // First try to get from GitHub
+            const response = await fetch('https://raw.githubusercontent.com/2cpe/botgames/main/data/products.json');
             
-            return products; // Fallback to default products
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+
+            const products = await response.json();
+            localStorage.setItem('products', JSON.stringify(products));
+            return products;
         } catch (error) {
             console.error('Error fetching products:', error);
-            return products;
+            // Fall back to local storage or default products
+            return JSON.parse(localStorage.getItem('products')) || products;
         }
     }
 }
 
 async function handleProductSubmit(event) {
     event.preventDefault();
-    console.log('Submitting product form...');
 
     const productId = document.getElementById('productId').value;
     const newProduct = {
@@ -145,8 +150,6 @@ async function handleProductSubmit(event) {
         }
     };
 
-    console.log('New product:', newProduct);
-
     if (productId) {
         // Update existing product
         const index = currentProducts.findIndex(p => p.id === parseInt(productId));
@@ -156,23 +159,15 @@ async function handleProductSubmit(event) {
         currentProducts.push(newProduct);
     }
 
-    try {
-        // Save to Supabase
-        const saved = await ProductManager.saveProducts(currentProducts);
-        console.log('Save result:', saved);
-        
-        if (saved) {
-            // Refresh the products list
-            currentProducts = await ProductManager.getProducts();
-            renderProductsList();
-            clearForm();
-            alert('Product saved successfully!');
-        } else {
-            alert('Failed to save product. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error saving product:', error);
-        alert('Error saving product: ' + error.message);
+    // Save to GitHub
+    const saved = await ProductManager.saveProducts(currentProducts);
+    
+    if (saved) {
+        renderProductsList();
+        clearForm();
+        alert('Product saved successfully!');
+    } else {
+        alert('Failed to save product. Please try again.');
     }
 }
 
@@ -186,7 +181,5 @@ function saveProductsToStorage() {
     localStorage.setItem('products', JSON.stringify(currentProducts));
 }
 
-// Update the event listener to handle async
-document.addEventListener('DOMContentLoaded', () => {
-    initializeAdmin();
-}); 
+// Initialize admin panel
+document.addEventListener('DOMContentLoaded', initializeAdmin); 
