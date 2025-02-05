@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - FiveM Scripts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/admin.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="highlight">ADMIN</span>PANEL
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link">
+                <i class="fas fa-home"></i>
+                <span>Site</span>
+            </a>
+            <a href="store.html" class="nav-link">
+                <i class="fas fa-store"></i>
+                <span>Store</span>
+            </a>
+            <button id="logoutBtn" class="nav-link logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <button class="action-btn add-product-btn" id="addProductBtn">
+                <i class="fas fa-plus"></i>
+                Add New Product
+            </button>
+            <div class="products-list" id="productsList">
+                <!-- Products will be listed here -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div id="productForm" class="product-form">
+                <h2>Product Details</h2>
+                <form id="editProductForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Product Name</label>
+                            <input type="text" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Price ($)</label>
+                            <input type="number" name="price" step="0.01" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input type="text" name="category" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Badge</label>
+                            <input type="text" name="badge" placeholder="Featured, New, etc.">
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Short Description</label>
+                            <input type="text" name="shortDescription" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Full Description</label>
+                            <textarea name="fullDescription" required></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Features (one per line)</label>
+                            <textarea name="features" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Version</label>
+                            <input type="text" name="version" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Framework</label>
+                            <input type="text" name="framework" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Files Included</label>
+                            <input type="text" name="filesIncluded" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Images (URLs, one per line)</label>
+                            <textarea name="images" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="save-btn">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                        <button type="button" class="delete-btn" id="deleteProductBtn">
+                            <i class="fas fa-trash"></i>
+                            Delete Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/admin.js"></script>
+</body>
+</html> 
