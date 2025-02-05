@@ -1,19 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
     const CLIENT_ID = '1327745611230871572';
-    const REDIRECT_URI = 'https://2cpe.github.io/botgames/admin.html';
-    const DISCORD_ENDPOINT = 'https://discord.com/oauth2/authorize?client_id=1327745611230871572&response_type=code&redirect_uri=https%3A%2F%2F2cpe.github.io%2Fbotgames%2Fadmin.html&scope=guilds.members.read+identify';
+    const REDIRECT_URI = 'https://2cpe.github.io/botgames/login.html';
+    const DISCORD_ENDPOINT = 'https://discord.com/oauth2/authorize?client_id=1327745611230871572&response_type=code&redirect_uri=https%3A%2F%2F2cpe.github.io%2Fbotgames%2Flogin.html&scope=guilds.members.read+identify';
 
-    // Check if user is already logged in
-    const token = localStorage.getItem('discord_token');
-    if (token) {
-        validateAndRedirect(token);
-    }
-
-    // Check for OAuth code in URL
+    // Check for OAuth code in URL first
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     if (code) {
         exchangeCodeForToken(code);
+        return;
+    }
+
+    // Then check if user is already logged in
+    const token = localStorage.getItem('discord_token');
+    if (token) {
+        validateAndRedirect(token);
+        return;
     }
 
     document.getElementById('discordLoginBtn').addEventListener('click', () => {
@@ -27,10 +29,10 @@ async function exchangeCodeForToken(code) {
             method: 'POST',
             body: new URLSearchParams({
                 client_id: '1327745611230871572',
-                client_secret: 'IkO5w0-DpVrNHkkySv21wh8nOgfukn-l', // You'll need to handle this securely
+                client_secret: 'IkO5w0-DpVrNHkkySv21wh8nOgfukn-l',
                 grant_type: 'authorization_code',
                 code: code,
-                redirect_uri: 'https://2cpe.github.io/botgames/admin.html',
+                redirect_uri: 'https://2cpe.github.io/botgames/login.html',
                 scope: 'identify guilds.members.read'
             }),
             headers: {
@@ -43,10 +45,13 @@ async function exchangeCodeForToken(code) {
             localStorage.setItem('discord_token', data.access_token);
             window.location.href = 'admin.html';
         } else {
-            console.error('Failed to exchange code for token');
+            const errorData = await response.json();
+            console.error('Failed to exchange code for token:', errorData);
+            showError('Failed to authenticate with Discord');
         }
     } catch (error) {
         console.error('Error exchanging code:', error);
+        showError('Failed to connect to Discord');
     }
 }
 
@@ -62,9 +67,22 @@ async function validateAndRedirect(token) {
             window.location.href = 'admin.html';
         } else {
             localStorage.removeItem('discord_token');
+            showError('Invalid or expired token');
         }
     } catch (error) {
         console.error('Error validating token:', error);
         localStorage.removeItem('discord_token');
+        showError('Failed to validate token');
     }
+}
+
+function showError(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification error';
+    notification.innerHTML = `
+        <i class="fas fa-exclamation-circle"></i>
+        ${message}
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 5000);
 } 

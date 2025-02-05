@@ -213,7 +213,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     async function validateUser(token) {
         try {
-            // Get user's guilds and roles
             const response = await fetch('https://discord.com/api/users/@me/guilds/1327745611230871572/member', {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -221,16 +220,23 @@ document.addEventListener('DOMContentLoaded', async function() {
             });
 
             if (!response.ok) {
+                console.error('Failed to fetch user data:', await response.text());
                 throw new Error('Failed to fetch user data');
             }
 
             const userData = await response.json();
+            console.log('User data:', userData); // For debugging
             const hasRequiredRole = userData.roles.includes('1327749769770307686');
+
+            if (!hasRequiredRole) {
+                console.log('User lacks required role. Roles:', userData.roles);
+            }
 
             return {
                 hasRequiredRole
             };
         } catch (error) {
+            console.error('Validation error:', error);
             throw new Error('Failed to validate user');
         }
     }
