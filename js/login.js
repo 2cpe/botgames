@@ -36,17 +36,19 @@ async function exchangeCodeForToken(code) {
                 scope: 'identify guilds.members.read'
             }),
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
             }
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem('discord_token', data.access_token);
+        const data = await response.json();
+        console.log('Token response:', data); // For debugging
+
+        if (data.access_token) {
+            localStorage.setItem('discord_token', `Bearer ${data.access_token}`);
             window.location.href = 'admin.html';
         } else {
-            const errorData = await response.json();
-            console.error('Failed to exchange code for token:', errorData);
+            console.error('No access token received:', data);
             showError('Failed to authenticate with Discord');
         }
     } catch (error) {
@@ -59,11 +61,14 @@ async function validateAndRedirect(token) {
     try {
         const response = await fetch('https://discord.com/api/users/@me', {
             headers: {
-                Authorization: `Bearer ${token}`
+                'Authorization': token,
+                'Accept': 'application/json'
             }
         });
 
         if (response.ok) {
+            const userData = await response.json();
+            console.log('User data:', userData); // For debugging
             window.location.href = 'admin.html';
         } else {
             localStorage.removeItem('discord_token');

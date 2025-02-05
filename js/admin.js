@@ -215,12 +215,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         try {
             const response = await fetch('https://discord.com/api/users/@me/guilds/1327745611230871572/member', {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    'Authorization': token,
+                    'Accept': 'application/json'
                 }
             });
 
             if (!response.ok) {
-                console.error('Failed to fetch user data:', await response.text());
+                const errorText = await response.text();
+                console.error('Failed to fetch user data:', errorText);
                 throw new Error('Failed to fetch user data');
             }
 
